@@ -30,21 +30,20 @@ A self-hosted newsletter platform for independent publishers who want full contr
 - Subscription status & bought articles.
 - Email preferences: a way for users to opt-in or out of receiving newsletter via email.
 
-2. **Payment && pay wall**
+2. **Payment & pay wall**
 
-- Stripe integration for checkout.
+- PSP (`Stripe`) integration for checkout.
 - Check before rendering an article:
   - free content -> OK
   - paid content && user has active subscription -> OK
   - paid content && user has bought this item -> OK
 - Paid content: show preview followed by call-to-action (CTA) to pay.
+- For admins: set subscription fee and article global price.
 
 3. **Content management system (CMS)**
 
-- For admins only.
-- Draft & published articles.
-- Fields for setting price of an article _(or use a global price for all articles)_
-- **Development note**: (initial) plain text -> (later) rich content
+- For admins.
+- Optional: photos, reacts, comments.
 
 4. **Email Delivery**
 
