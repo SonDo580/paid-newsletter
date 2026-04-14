@@ -40,10 +40,10 @@ async def update_article(article_id: int, data: ArticleUpdateReqBody):
     return data
 
 
-@router.delete("/{article_id}")
-async def delete_article(article_id: int):
+@router.delete("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_article(article_id: int, db_session: DBSessionDep):
     """Permanently remove article."""
-    raise NotImplementedError()
+    ArticlesService.delete_article(db_session, article_id)
 
 
 @router.get("/")

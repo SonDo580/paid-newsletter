@@ -1,4 +1,4 @@
-from sqlmodel import Session as DBSession, select, desc
+from sqlmodel import Session as DBSession, select
 from fastapi import HTTPException, status
 
 from app.db.models.article import Article
@@ -25,9 +25,9 @@ class ArticlesService:
             return ArticleCreateResBody(id=article.id)
         except Exception:
             db_session.rollback()
+            raise
             # Race condition: someone added the same slug between our check and commit
             # -> Don't handle since there's only 1 admin
-            raise
 
     @staticmethod
     def is_slug_unique(db_session: DBSession, slug: str) -> bool:
@@ -74,3 +74,22 @@ class ArticlesService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
+
+    @staticmethod
+    def delete_article(db_session: DBSession, article_id: int):
+        """Remove article from active table and move to graveyard."""
+        article = ArticlesService.get_by_id(db_session, article_id)
+        try:
+            # Add graveyard entry
+            deleted_entry = DeletedArticle(
+                article_id=article.id, slug=article.slug, title=article.title
+            )
+            db_session.add(deleted_entry)
+
+            # Delete the active record
+            db_session.delete(article)
+
+            db_session.commit()
+        except Exception:
+            db_session.rollback()
+            raise
