@@ -86,9 +86,7 @@ class ArticlesService:
         article = ArticlesService.get_by_id(db_session, article_id)
         try:
             # Add graveyard entry
-            deleted_entry = DeletedArticle(
-                article_id=article.id, slug=article.slug, title=article.title
-            )
+            deleted_entry = DeletedArticle(slug=article.slug, title=article.title)
             db_session.add(deleted_entry)
 
             # Delete the active record

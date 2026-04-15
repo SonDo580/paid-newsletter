@@ -14,7 +14,6 @@ class DeletedArticle(StrictModel, table=True):
     __tablename__ = "deleted_articles"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    article_id: int = Field(unique=True, description="article PK")
     slug: str = Field(
         index=True, description="not unique (allow reusing deleted slugs, with alert)"
     )
