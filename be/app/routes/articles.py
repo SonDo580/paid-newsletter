@@ -30,14 +30,16 @@ async def check_slug(slug: TSlug, db_session: DBSessionDep):
     return CheckSlugResBody(available=available)
 
 
-@router.patch("/{article_id}")
-async def update_article(article_id: int, data: ArticleUpdateReqBody):
+@router.patch("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def update_article(
+    article_id: int, data: ArticleUpdateReqBody, db_session: DBSessionDep
+):
     """Can do the followings:
     - Update content.
     - Toggle free/paid status.
     - Publish/unpublish. Trigger email sending for first-time publish.
     """
-    return data
+    ArticlesService.update_article(db_session, article_id, data)
 
 
 @router.delete("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -3,7 +3,12 @@ from fastapi import HTTPException, status
 
 from app.db.models.article import Article
 from app.db.models.deleted_article import DeletedArticle
-from app.schemas.articles import ArticleCreateReqBody, ArticleCreateResBody
+from app.schemas.articles import (
+    ArticleCreateReqBody,
+    ArticleCreateResBody,
+    ArticleUpdateReqBody,
+)
+from app.utils.datetime import datetime_utils
 
 
 class ArticlesService:
@@ -89,6 +94,37 @@ class ArticlesService:
             # Delete the active record
             db_session.delete(article)
 
+            db_session.commit()
+        except Exception:
+            db_session.rollback()
+            raise
+
+    @staticmethod
+    def update_article(
+        db_session: DBSession, article_id: int, data: ArticleUpdateReqBody
+    ):
+        article = ArticlesService.get_by_id(db_session, article_id)
+        update_data = data.model_dump(exclude_none=True)
+        if not update_data:
+            return
+
+        is_first_publish = (
+            data.is_published
+            and not article.is_published
+            and article.published_at is None
+        )
+
+        for k, v in update_data.items():
+            setattr(article, k, v)  # can do this only if field names match
+
+        now = datetime_utils.now_utc()
+        article.updated_at = now
+        if is_first_publish:
+            article.published_at = now
+            # TODO: email notification to subscribers
+
+        try:
+            db_session.add(article)  # update if id is set
             db_session.commit()
         except Exception:
             db_session.rollback()

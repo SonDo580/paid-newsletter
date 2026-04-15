@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, AfterValidator
+from pydantic import BaseModel, Field, AfterValidator
 from typing import Optional, Annotated
 import re
 from datetime import datetime
@@ -16,11 +16,11 @@ def validate_slug_format(v: str) -> str:
 
 TSlug = Annotated[
     TStrippedStr,
-    Field(min_length=3, max_length=100),
+    Field(min_length=3, max_length=150),
     AfterValidator(validate_slug_format),
 ]
-TTitle = Annotated[TStrippedStr, Field(min_length=5, max_length=150)]
-TContent = Annotated[TStrippedStr, Field(min_length=10)]
+TTitle = Annotated[TStrippedStr, Field(min_length=10, max_length=150)]
+TContent = Annotated[TStrippedStr, Field(min_length=100)]
 
 
 class ArticleCreateReqBody(BaseModel):
