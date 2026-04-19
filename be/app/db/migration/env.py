@@ -9,6 +9,8 @@ from app.config.settings import settings
 # these imports are not used directly but required
 from app.db.models.article import Article
 from app.db.models.deleted_article import DeletedArticle
+from app.db.models.reader import Reader
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
