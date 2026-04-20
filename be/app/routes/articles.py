@@ -49,14 +49,6 @@ async def update_article(
     ArticlesService.update_article(db_session, article_id, data)
 
 
-@router.delete("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_article(
-    article_id: int, db_session: DBSessionDep, _=Depends(admin_required)
-):
-    """Permanently remove article."""
-    ArticlesService.delete_article(db_session, article_id)
-
-
 @router.get("/")
 async def list_articles(
     user: CurrentUser = Depends(get_current_user),

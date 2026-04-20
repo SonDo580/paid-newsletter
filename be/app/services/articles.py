@@ -2,7 +2,6 @@ from sqlmodel import Session as DBSession, select
 from fastapi import HTTPException, status
 
 from app.db.models.article import Article
-from app.db.models.deleted_article import DeletedArticle
 from app.schemas.articles import (
     ArticleCreateReqBody,
     ArticleCreateResBody,
@@ -53,49 +52,19 @@ class ArticlesService:
 
     @staticmethod
     def get_by_slug(db_session: DBSession, slug: str) -> Article:
-        """
-        Find article by slug - for public readers.
-        Handle paywall logic.
-        Inform readers if article has been deleted.
-        """
+        """Find article by slug. Apply paywall to readers."""
+        # TODO: handle admin
         article = db_session.exec(
             select(Article).where(Article.slug == slug, Article.is_published == True)
         ).first()
-        if article:
-            # TODO: Handle paywall logic
-            return article
-
-        # If not found, check if article has been deleted
-        # (there may be multiple deleted articles with the same slug)
-        deleted_info = db_session.exec(
-            select(DeletedArticle).where(DeletedArticle.slug == slug)
-        ).first()
-        if deleted_info:
-            raise HTTPException(
-                status_code=status.HTTP_410_GONE,
-                detail="Article has been deleted",
-            )
-        else:
+        if not article:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
-    @staticmethod
-    def delete_article(db_session: DBSession, article_id: int):
-        """Remove article from active table and move to graveyard."""
-        article = ArticlesService.get_by_id(db_session, article_id)
-        try:
-            # Add graveyard entry
-            deleted_entry = DeletedArticle(slug=article.slug, title=article.title)
-            db_session.add(deleted_entry)
-
-            # Delete the active record
-            db_session.delete(article)
-
-            db_session.commit()
-        except Exception:
-            db_session.rollback()
-            raise
+        # TODO: reader should still see unpublished article if purchased before
+        # TODO: Handle paywall logic for readers (subscribed or purchased)
+        return article
 
     @staticmethod
     def update_article(
@@ -114,7 +83,8 @@ class ArticlesService:
 
         try:
             for k, v in update_data.items():
-                setattr(article, k, v)  # can do this only if fields match
+                # can do this only if fields match
+                setattr(article, k, v)  
 
             now = datetime_utils.now_utc()
             article.updated_at = now
