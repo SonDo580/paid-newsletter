@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, AfterValidator
 from typing import Optional, Annotated
 import re
 from datetime import datetime
+from enum import Enum
 
 from app.schemas.shared import TStrippedStr
 
@@ -49,9 +50,14 @@ class ArticleUpdateReqBody(BaseModel):
     # Don't allow updating 'slug' to prevent breaking existing link.
 
 
-class ArticlePublicResBody(BaseModel):
+class AccessStatus(str, Enum):
+    FULL = "full"
+    TEASER = "teaser"
+
+
+class PublicArticle(BaseModel):
     title: str
     slug: str
     content: str
     published_at: datetime
-    is_free: bool
+    access_status: AccessStatus

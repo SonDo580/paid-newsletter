@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, Depends
+from typing import Union
 
 from app.db.connect import DBSessionDep
 from app.db.models.article import Article
@@ -8,7 +9,7 @@ from app.schemas.articles import (
     ArticleCreateResBody,
     CheckSlugResBody,
     ArticleUpdateReqBody,
-    ArticlePublicResBody,
+    PublicArticle,
 )
 from app.services.articles import ArticlesService
 from app.schemas.auth import CurrentUser
@@ -65,11 +66,14 @@ async def get_article_by_id(
     return ArticlesService.get_by_id(db_session, article_id)
 
 
-@router.get("/{slug}", response_model=ArticlePublicResBody)
+@router.get(
+    "/{slug}",
+    response_model=Union[PublicArticle, Article],
+)
 async def get_article_by_slug(
     slug: TSlug,
     db_session: DBSessionDep,
     user: CurrentUser = Depends(get_current_user),
 ):
-    """Find article by slug - for public readers."""
-    return ArticlesService.get_by_slug(db_session, slug)
+    """Find article by slug. Paywall is applied to readers."""
+    return ArticlesService.get_by_slug(db_session, slug, user)
