@@ -24,7 +24,7 @@ async def verify(token: str, db_session: DBSessionDep):
     access_token = AuthService.verify(db_session, token)
     response = RedirectResponse(url=settings.FRONTEND_URL)
     response.set_cookie(
-        key=CookieKey.ACCESS_TOKEN,
+        key=CookieKey.ACCESS_TOKEN.value,
         value=access_token,
         httponly=True,
         samesite="lax",
