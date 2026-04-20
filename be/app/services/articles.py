@@ -112,17 +112,16 @@ class ArticlesService:
             and article.published_at is None
         )
 
-        for k, v in update_data.items():
-            setattr(article, k, v)  # can do this only if field names match
-
-        now = datetime_utils.now_utc()
-        article.updated_at = now
-        if is_first_publish:
-            article.published_at = now
-            # TODO: email notification to subscribers
-
         try:
-            db_session.add(article)  # update if id is set
+            for k, v in update_data.items():
+                setattr(article, k, v)  # can do this only if fields match
+
+            now = datetime_utils.now_utc()
+            article.updated_at = now
+            if is_first_publish:
+                article.published_at = now
+                # TODO: email notification to subscribers
+
             db_session.commit()
         except Exception:
             db_session.rollback()
