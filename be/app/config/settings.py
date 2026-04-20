@@ -32,5 +32,11 @@ class Settings(BaseSettings):
     FRONTEND_URL: str
     API_URL: str
 
+    # Fee in USD
+    # TODO: use DB + support multiple tiers
+    CURRENCY: str = "usd"
+    SUBSCRIPTION_FEE: float = 5.0
+    ARTICLE_FEE: float = 1.0
+
 
 settings = Settings()
