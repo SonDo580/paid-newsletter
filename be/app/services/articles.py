@@ -1,13 +1,17 @@
 from sqlmodel import Session as DBSession, select
 from fastapi import HTTPException, status
+from typing import Union
 
 from app.db.models.article import Article
-from app.db.models.deleted_article import DeletedArticle
+from app.db.models.entitlement import Entitlement
 from app.schemas.articles import (
     ArticleCreateReqBody,
     ArticleCreateResBody,
     ArticleUpdateReqBody,
+    PublicArticle,
+    AccessStatus,
 )
+from app.schemas.auth import CurrentUser
 from app.utils.datetime import datetime_utils
 
 
@@ -52,50 +56,59 @@ class ArticlesService:
         return article
 
     @staticmethod
-    def get_by_slug(db_session: DBSession, slug: str) -> Article:
-        """
-        Find article by slug - for public readers.
-        Handle paywall logic.
-        Inform readers if article has been deleted.
-        """
-        article = db_session.exec(
-            select(Article).where(Article.slug == slug, Article.is_published == True)
-        ).first()
-        if article:
-            # TODO: Handle paywall logic
-            return article
-
-        # If not found, check if article has been deleted
-        # (there may be multiple deleted articles with the same slug)
-        deleted_info = db_session.exec(
-            select(DeletedArticle).where(DeletedArticle.slug == slug)
-        ).first()
-        if deleted_info:
-            raise HTTPException(
-                status_code=status.HTTP_410_GONE,
-                detail="Article has been deleted",
-            )
-        else:
+    def get_by_slug(
+        db_session: DBSession, slug: str, user: CurrentUser
+    ) -> Union[Article, PublicArticle]:
+        """Find article by slug. Paywall is applied to readers."""
+        article = db_session.exec(select(Article).where(Article.slug == slug)).first()
+        if not article:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
 
-    @staticmethod
-    def delete_article(db_session: DBSession, article_id: int):
-        """Remove article from active table and move to graveyard."""
-        article = ArticlesService.get_by_id(db_session, article_id)
-        try:
-            # Add graveyard entry
-            deleted_entry = DeletedArticle(slug=article.slug, title=article.title)
-            db_session.add(deleted_entry)
+        # Bypass checks for admin
+        if user.is_admin:
+            return article
 
-            # Delete the active record
-            db_session.delete(article)
+        # Check for specific one-off purchase
+        reader = user.reader
+        assert reader is not None
+        purchase = db_session.exec(
+            select(Entitlement).where(
+                Entitlement.reader_id == reader.id,
+                Entitlement.article_id == article.id,
+            )
+        ).first()
 
-            db_session.commit()
-        except Exception:
-            db_session.rollback()
-            raise
+        # Handle unpublished article
+        if not article.is_published:
+            # Article has never been published
+            if article.published_at is None:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Article not found",
+                )
+
+            # Only allow access if bought previously
+            if not purchase:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Article has been retired from public view",
+                )
+
+        # Allow full access
+        if article.is_free or reader.is_subscriber or purchase:
+            return PublicArticle(
+                **article.model_dump(), access_status=AccessStatus.FULL
+            )
+
+        # Return teaser
+        teaser = article.content[: min(len(article.content) // 5, 300)] + "..."
+        return PublicArticle(
+            **article.model_dump(exclude={"content"}),
+            content=teaser,
+            access_status=AccessStatus.TEASER
+        )
 
     @staticmethod
     def update_article(
@@ -114,7 +127,8 @@ class ArticlesService:
 
         try:
             for k, v in update_data.items():
-                setattr(article, k, v)  # can do this only if fields match
+                # can do this only if fields match
+                setattr(article, k, v)
 
             now = datetime_utils.now_utc()
             article.updated_at = now
