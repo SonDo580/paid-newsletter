@@ -13,7 +13,6 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login", status_code=status.HTTP_204_NO_CONTENT)
 async def login(email: EmailStr, db_session: DBSessionDep):
-    # TODO: rate limit
     token = AuthService.login(db_session, email)
     expires_in_str = f"{settings.MAGIC_TOKEN_EXPIRES_MINUTES} minutes"
     MailService.send_magic_link(email, token, expires_in_str)

@@ -15,7 +15,7 @@ A self-hosted newsletter platform for independent publishers who want full contr
 - Backend: `FastAPI`
 - Frontend: `ReactJS`
 - Database: `SQLite`
-- Payment:` Stripe`
+- Payment: `Stripe`
 - Email: `Resend`
 
 ## Features
@@ -42,7 +42,7 @@ A self-hosted newsletter platform for independent publishers who want full contr
 
 3. **Content management system (CMS)**
 
-- For admins.
+- Only for admin.
 - Optional: photos, reacts, comments.
 
 4. **Email Delivery**
