@@ -11,7 +11,6 @@ class Reader(StrictModel, table=True):
 
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(unique=True)
-    name: Optional[str] = None
     is_subscriber: bool = False
 
     created_at: datetime = Field(

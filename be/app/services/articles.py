@@ -1,6 +1,6 @@
 from sqlmodel import Session as DBSession, select
 from fastapi import HTTPException, status
-from typing import Union
+from typing import Union, Optional
 
 from app.db.models.article import Article
 from app.db.models.entitlement import Entitlement
@@ -27,7 +27,7 @@ class ArticlesService:
             )
 
         try:
-            article = Article(**data.model_dump())
+            article = Article.model_validate(data)
             db_session.add(article)
             db_session.commit()
             db_session.refresh(article)
@@ -57,9 +57,10 @@ class ArticlesService:
 
     @staticmethod
     def get_by_slug(
-        db_session: DBSession, slug: str, user: CurrentUser
+        db_session: DBSession, slug: str, user: Optional[CurrentUser]
     ) -> Union[Article, PublicArticle]:
-        """Find article by slug. Paywall is applied to readers."""
+        """Find article by slug.
+        Paywall is applied to readers and anonymous guests."""
         article = db_session.exec(select(Article).where(Article.slug == slug)).first()
         if not article:
             raise HTTPException(
@@ -67,18 +68,19 @@ class ArticlesService:
             )
 
         # Bypass checks for admin
-        if user.is_admin:
+        if user and user.is_admin:
             return article
 
         # Check for specific one-off purchase
-        reader = user.reader
-        assert reader is not None
-        purchase = db_session.exec(
-            select(Entitlement).where(
-                Entitlement.reader_id == reader.id,
-                Entitlement.article_id == article.id,
-            )
-        ).first()
+        reader = user.reader if user else None
+        purchase = None
+        if reader:
+            purchase = db_session.exec(
+                select(Entitlement).where(
+                    Entitlement.reader_id == reader.id,
+                    Entitlement.article_id == article.id,
+                )
+            ).first()
 
         # Handle unpublished article
         if not article.is_published:
@@ -89,15 +91,17 @@ class ArticlesService:
                     detail="Article not found",
                 )
 
-            # Only allow access if bought previously
+            # Article was published before but is currently unpublished
+            # -> Only allow access if reader bought article
             if not purchase:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
                     detail="Article has been retired from public view",
                 )
 
-        # Allow full access
-        if article.is_free or reader.is_subscriber or purchase:
+        is_subscriber = reader.is_subscriber if reader else False
+        if article.is_free or is_subscriber or purchase:
+            # Allow full access
             return PublicArticle(
                 **article.model_dump(), access_status=AccessStatus.FULL
             )
@@ -120,9 +124,9 @@ class ArticlesService:
             return
 
         is_first_publish = (
-            data.is_published
-            and not article.is_published
-            and article.published_at is None
+            data.is_published  # request wants to publish
+            and not article.is_published  # article is currently not published
+            and article.published_at is None  # article has never been published
         )
 
         try:

@@ -18,8 +18,7 @@ class Article(StrictModel, table=True):
     is_free: bool = False
 
     # Status
-    is_published: bool = Field(default=False, index=True)
-    email_sent: bool = Field(default=False)
+    is_published: bool = Field(default=False)
 
     # Timestamps
     created_at: datetime = Field(

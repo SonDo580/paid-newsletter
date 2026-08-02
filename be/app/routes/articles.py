@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends
-from typing import Union
+from typing import Union, Optional
 
 from app.db.connect import DBSessionDep
 from app.db.models.article import Article
@@ -13,7 +13,7 @@ from app.schemas.articles import (
 )
 from app.services.articles import ArticlesService
 from app.schemas.auth import CurrentUser
-from app.dependencies.auth import admin_required, get_current_user
+from app.dependencies.auth import admin_required, get_current_user, get_optional_user
 
 router = APIRouter(prefix="/articles", tags=["Articles"])
 
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/articles", tags=["Articles"])
 @router.post(
     "/draft", response_model=ArticleCreateResBody, status_code=status.HTTP_201_CREATED
 )
-async def save_draft(
+def save_draft(
     data: ArticleCreateReqBody, db_session: DBSessionDep, _=Depends(admin_required)
 ):
     """Create a new draft."""
@@ -29,14 +29,14 @@ async def save_draft(
 
 
 @router.get("/check-slug", response_model=CheckSlugResBody)
-async def check_slug(slug: TSlug, db_session: DBSessionDep, _=Depends(admin_required)):
+def check_slug(slug: TSlug, db_session: DBSessionDep, _=Depends(admin_required)):
     """Checks if a slug is available."""
     available = ArticlesService.is_slug_unique(db_session, slug)
     return CheckSlugResBody(available=available)
 
 
 @router.patch("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def update_article(
+def update_article(
     article_id: int,
     data: ArticleUpdateReqBody,
     db_session: DBSessionDep,
@@ -50,16 +50,8 @@ async def update_article(
     ArticlesService.update_article(db_session, article_id, data)
 
 
-@router.get("/")
-async def list_articles(
-    user: CurrentUser = Depends(get_current_user),
-):
-    """Fetch articles according to filter."""
-    raise NotImplementedError()
-
-
 @router.get("/id/{article_id}", response_model=Article)
-async def get_article_by_id(
+def get_article_by_id(
     article_id: int, db_session: DBSessionDep, _=Depends(admin_required)
 ):
     """Find article by ID - for admin."""
@@ -67,13 +59,30 @@ async def get_article_by_id(
 
 
 @router.get(
-    "/{slug}",
+    "/slug/{slug}",
     response_model=Union[PublicArticle, Article],
 )
-async def get_article_by_slug(
+def get_article_by_slug(
     slug: TSlug,
+    db_session: DBSessionDep,
+    user: Optional[CurrentUser] = Depends(get_optional_user),
+):
+    """Find article by slug. 
+    Paywall is applied to readers and anonymous guests."""
+    return ArticlesService.get_by_slug(db_session, slug, user)
+
+
+@router.get("/list/reader")
+def list_articles_for_readers(
     db_session: DBSessionDep,
     user: CurrentUser = Depends(get_current_user),
 ):
-    """Find article by slug. Paywall is applied to readers."""
-    return ArticlesService.get_by_slug(db_session, slug, user)
+    pass
+
+
+@router.get("/list/admin")
+def list_articles_for_admin(
+    db_session: DBSessionDep,
+    user: CurrentUser = Depends(admin_required),
+):
+    pass

@@ -1,3 +1,4 @@
+from fastapi import Query
 from pydantic import BaseModel, Field, AfterValidator
 from typing import Optional, Annotated
 import re
@@ -56,6 +57,8 @@ class AccessStatus(str, Enum):
 
 
 class PublicArticle(BaseModel):
+    """Show to readers."""
+
     title: str
     slug: str
     content: str
