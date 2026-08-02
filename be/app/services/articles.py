@@ -1,4 +1,4 @@
-from sqlmodel import Session as DBSession, select
+from sqlmodel import Session as DBSession, select, or_, func
 from fastapi import HTTPException, status
 from typing import Union, Optional
 
@@ -10,8 +10,12 @@ from app.schemas.articles import (
     ArticleUpdateReqBody,
     PublicArticle,
     AccessStatus,
+    ArticlesListForAdminParams,
+    ArticlesListItemForAdmin,
+    ArticlesListForAdminResBody,
 )
 from app.schemas.auth import CurrentUser
+from app.schemas.shared import SortOrder
 from app.utils.datetime import datetime_utils
 
 
@@ -111,7 +115,7 @@ class ArticlesService:
         return PublicArticle(
             **article.model_dump(exclude={"content"}),
             content=teaser,
-            access_status=AccessStatus.TEASER
+            access_status=AccessStatus.TEASER,
         )
 
     @staticmethod
@@ -144,3 +148,47 @@ class ArticlesService:
         except Exception:
             db_session.rollback()
             raise
+
+    @staticmethod
+    def list_articles_for_admin(
+        db_session: DBSession, params: ArticlesListForAdminParams
+    ) -> ArticlesListForAdminResBody:
+        # Build filter conditions
+        conditions = []
+        if params.keyword:
+            term = f"%{params.keyword}%"
+            conditions.append(
+                or_(
+                    Article.title.ilike(term),
+                    Article.slug.ilike(term),
+                    Article.content.ilike(term),
+                )
+            )
+        if params.is_free is not None:
+            conditions.append(Article.is_free == params.is_free)
+        if params.is_published is not None:
+            conditions.append(Article.is_published == params.is_published)
+
+        # Build count stmt
+        count_stmt = select(func.count(Article.id)).where(*conditions)
+
+        # Build data stmt with sorting and paging
+        sort_column = getattr(Article, params.sort_by.value)
+        sort_clause = (
+            sort_column.desc()
+            if params.sort_order == SortOrder.DESC
+            else sort_column.asc()
+        )
+        offset = (params.page - 1) * params.page_size
+        data_stmt = (
+            select(Article)
+            .where(*conditions)
+            .order_by(sort_clause)
+            .offset(offset)
+            .limit(params.page_size)
+        )
+
+        total = db_session.exec(count_stmt).one()
+        articles = db_session.exec(data_stmt).all()
+        items = [ArticlesListItemForAdmin.model_validate(a) for a in articles]
+        return ArticlesListForAdminResBody(items=items, total=total)

@@ -10,6 +10,8 @@ from app.schemas.articles import (
     CheckSlugResBody,
     ArticleUpdateReqBody,
     PublicArticle,
+    ArticlesListForAdminParams,
+    ArticlesListForAdminResBody,
 )
 from app.services.articles import ArticlesService
 from app.schemas.auth import CurrentUser
@@ -67,7 +69,7 @@ def get_article_by_slug(
     db_session: DBSessionDep,
     user: Optional[CurrentUser] = Depends(get_optional_user),
 ):
-    """Find article by slug. 
+    """Find article by slug.
     Paywall is applied to readers and anonymous guests."""
     return ArticlesService.get_by_slug(db_session, slug, user)
 
@@ -80,9 +82,10 @@ def list_articles_for_readers(
     pass
 
 
-@router.get("/list/admin")
+@router.get("/list/admin", response_model=ArticlesListForAdminResBody)
 def list_articles_for_admin(
     db_session: DBSessionDep,
-    user: CurrentUser = Depends(admin_required),
+    params: ArticlesListForAdminParams = Depends(),
+    _=Depends(admin_required),
 ):
-    pass
+    return ArticlesService.list_articles_for_admin(db_session, params)

@@ -1,11 +1,10 @@
-from fastapi import Query
-from pydantic import BaseModel, Field, AfterValidator
+from pydantic import BaseModel, Field, AfterValidator, ConfigDict
 from typing import Optional, Annotated
 import re
 from datetime import datetime
 from enum import Enum
 
-from app.schemas.shared import TStrippedStr
+from app.schemas.shared import TStrippedStr, SortOrder
 
 
 def validate_slug_format(v: str) -> str:
@@ -64,3 +63,55 @@ class PublicArticle(BaseModel):
     content: str
     published_at: datetime
     access_status: AccessStatus
+
+
+class ArticleSortBy(str, Enum):
+    ID = "id"
+    TITLE = "title"
+    CREATED_AT = "created_at"
+    UPDATED_AT = "updated_at"
+    PUBLISHED_AT = "published_at"
+
+
+class ArticlesListForAdminParams(BaseModel):
+    # === Paging ===
+    page: int = Field(default=1, ge=1)
+    page_size: int = Field(default=20, ge=1, le=100)
+
+    # === Keyword search ===
+    keyword: Optional[TStrippedStr] = Field(
+        default=None, max_length=100, description="Search in title, slug, content"
+    )
+
+    # === Filter ===
+    is_free: Optional[bool] = None
+    is_published: Optional[bool] = None
+
+    # created_after: Optional[datetime] = None
+    # created_before: Optional[datetime] = None
+    # updated_after: Optional[datetime] = None
+    # updated_before: Optional[datetime] = None
+    # published_after: Optional[datetime] = None
+    # published_before: Optional[datetime] = None
+
+    # === Sort ===
+    sort_by: ArticleSortBy = ArticleSortBy.ID
+    sort_order: SortOrder = SortOrder.DESC
+
+
+class ArticlesListItemForAdmin(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    slug: str
+    is_free: bool
+    is_published: bool
+    created_at: datetime
+    updated_at: datetime
+    published_at: Optional[datetime]
+
+
+class ArticlesListForAdminResBody(BaseModel):
+    items: list[ArticlesListItemForAdmin]
+    total: int
