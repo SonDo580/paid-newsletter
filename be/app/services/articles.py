@@ -1,6 +1,7 @@
 from sqlmodel import Session as DBSession, select, or_, func
 from fastapi import HTTPException, status
 from typing import Union, Optional
+import base64
 
 from app.db.models.article import Article
 from app.db.models.entitlement import Entitlement
@@ -13,10 +14,26 @@ from app.schemas.articles import (
     ArticlesListForAdminParams,
     ArticlesListItemForAdmin,
     ArticlesListForAdminResBody,
+    ArticlesListForReaderParams,
+    ArticlesListItemForReader,
+    ArticlesListForReaderResBody,
 )
 from app.schemas.auth import CurrentUser
 from app.schemas.shared import SortOrder
 from app.utils.datetime import datetime_utils
+
+
+def encode_cursor(last_id: int) -> str:
+    return base64.b64encode(str(last_id).encode()).decode()
+
+
+def decode_cursor(cursor: str) -> int:
+    try:
+        return int(base64.b64decode(cursor.encode()).decode())
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid cursor"
+        )
 
 
 class ArticlesService:
@@ -192,3 +209,30 @@ class ArticlesService:
         articles = db_session.exec(data_stmt).all()
         items = [ArticlesListItemForAdmin.model_validate(a) for a in articles]
         return ArticlesListForAdminResBody(items=items, total=total)
+
+    @staticmethod
+    def list_articles_for_reader(
+        db_session: DBSession, params: ArticlesListForReaderParams
+    ) -> ArticlesListForReaderResBody:
+        conditions = [Article.is_published == True]
+        if params.cursor is not None:
+            last_id = decode_cursor(params.cursor)
+            conditions.append(Article.id < last_id)  # since order is id DESC
+
+        stmt = (
+            select(Article)
+            .where(*conditions)
+            .order_by(Article.id.desc())
+            .limit(params.limit + 1)  # +1 to check if there's more
+        )
+
+        articles = db_session.exec(stmt).all()
+        has_more = len(articles) > params.limit
+        articles = articles[: params.limit]
+
+        next_cursor = None
+        if has_more:
+            next_cursor = encode_cursor(articles[-1].id)
+
+        items = [ArticlesListItemForReader.model_validate(a) for a in articles]
+        return ArticlesListForReaderResBody(items=items, next_cursor=next_cursor)

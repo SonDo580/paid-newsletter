@@ -12,6 +12,8 @@ from app.schemas.articles import (
     PublicArticle,
     ArticlesListForAdminParams,
     ArticlesListForAdminResBody,
+    ArticlesListForReaderParams,
+    ArticlesListForReaderResBody,
 )
 from app.services.articles import ArticlesService
 from app.schemas.auth import CurrentUser
@@ -74,12 +76,13 @@ def get_article_by_slug(
     return ArticlesService.get_by_slug(db_session, slug, user)
 
 
-@router.get("/list/reader")
-def list_articles_for_readers(
+@router.get("/list/reader", response_model=ArticlesListForReaderResBody)
+def list_articles_for_reader(
     db_session: DBSessionDep,
-    user: CurrentUser = Depends(get_current_user),
+    params: ArticlesListForReaderParams = Depends(),
 ):
-    pass
+    """List articles for readers and anonymous guests."""
+    return ArticlesService.list_articles_for_reader(db_session, params)
 
 
 @router.get("/list/admin", response_model=ArticlesListForAdminResBody)

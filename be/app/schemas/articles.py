@@ -115,3 +115,20 @@ class ArticlesListItemForAdmin(BaseModel):
 class ArticlesListForAdminResBody(BaseModel):
     items: list[ArticlesListItemForAdmin]
     total: int
+
+
+class ArticlesListForReaderParams(BaseModel):
+    limit: int = Field(default=10, ge=1, le=50)
+    cursor: Optional[str] = None
+
+
+class ArticlesListItemForReader(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    title: str
+    slug: str
+
+
+class ArticlesListForReaderResBody(BaseModel):
+    items: list[ArticlesListItemForReader]
+    next_cursor: Optional[str] = None
