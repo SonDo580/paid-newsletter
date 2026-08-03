@@ -6,7 +6,7 @@ import AdminLayout from "./pages/admin/AdminLayout";
 import AdminArticles from "./pages/admin/AdminArticles";
 import ArticleForm from "./pages/admin/ArticleForm";
 import NotFound from "./pages/NotFound";
-import { PATHS } from "~/constants/paths";
+import { PATHS } from "~/utils/paths";
 
 function App() {
   return (

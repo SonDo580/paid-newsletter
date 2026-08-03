@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { PATHS } from "~/constants/paths";
+import { Button } from "~/components/ui/Button";
+import { PATHS } from "~/utils/paths";
 
 export default function AdminArticles() {
   //   Mock data
@@ -69,18 +70,11 @@ export default function AdminArticles() {
               <td className={cellCls}>{formatDate(a.created_at)}</td>
               <td className={cellCls}>{formatDate(a.updated_at)}</td>
               <td className={`${cellCls} flex gap-2`}>
-                <Link
-                  to={PATHS.ADMIN.EDIT_ARTICLE(a.id)}
-                  className="text-white bg-blue-600 hover:bg-blue-700 p-2 rounded-md"
-                >
-                  Edit
+                <Link to={PATHS.ADMIN.EDIT_ARTICLE(a.id)}>
+                  <Button variant="primary">Edit</Button>
                 </Link>
-                <Link
-                  to={PATHS.ARTICLE(a.slug)}
-                  className="text-white bg-gray-600 hover:bg-gray-700 p-2 rounded-md"
-                  target="_blank"
-                >
-                  Read
+                <Link to={PATHS.ARTICLE(a.slug)} target="_blank">
+                  <Button variant="secondary">Read</Button>
                 </Link>
               </td>
             </tr>

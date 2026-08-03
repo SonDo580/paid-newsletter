@@ -1,9 +1,11 @@
 import { useParams } from "react-router-dom";
+import { Button } from "~/components/ui/Button";
+import { Checkbox } from "~/components/ui/Checkbox";
+import { Input } from "~/components/ui/Input";
+import { Textarea } from "~/components/ui/Textarea";
 
 export default function ArticleForm() {
   const { id } = useParams<{ id: string }>();
-
-  const inputCls = "w-full rounded-md border border-gray-300 p-2";
 
   return (
     <div>
@@ -11,21 +13,16 @@ export default function ArticleForm() {
         {id ? `Edit Article #${id}` : "Create Article"}
       </h1>
       <form className="flex flex-col gap-4 max-w-2xl">
-        <input type="text" placeholder="Title" className={inputCls} />
-        <textarea
-          placeholder="Content"
-          rows={5}
-          className={inputCls}
-        ></textarea>
-        <input type="text" placeholder="Slug" className={inputCls} />
-        {/* is_free */}
-        {/* is_published */}
-        <button
-          type="button"
-          className="rounded-md bg-blue-600 p-2 text-white font-medium hover:bg-blue-700 cursor-pointer"
-        >
+        <Input type="text" placeholder="Title" />
+        <Textarea placeholder="Content" rows={5} />
+        <Input type="text" placeholder="Slug" />
+        <div className="flex gap-6 p-2">
+          <Checkbox label="Free" />
+          <Checkbox label="Published" />
+        </div>
+        <Button type="button" variant="primary">
           {id ? "Update" : "Create"}
-        </button>
+        </Button>
       </form>
     </div>
   );

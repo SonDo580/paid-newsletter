@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { PATHS } from "~/constants/paths";
+import { PATHS } from "~/utils/paths";
 
 export default function Home() {
   const articles = [
