@@ -1,4 +1,4 @@
-from sqlmodel import Field, Column
+from sqlmodel import Field, Column, String
 from typing import Optional
 from datetime import datetime
 
@@ -10,7 +10,7 @@ class Article(StrictModel, table=True):
     __tablename__ = "articles"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    title: str
+    title: str = Field(sa_column=Column(String(collation="NOCASE"), nullable=False))
     slug: str = Field(unique=True)
     content: str
 
@@ -18,8 +18,7 @@ class Article(StrictModel, table=True):
     is_free: bool = False
 
     # Status
-    is_published: bool = Field(default=False, index=True)
-    email_sent: bool = Field(default=False)
+    is_published: bool = Field(default=False)
 
     # Timestamps
     created_at: datetime = Field(

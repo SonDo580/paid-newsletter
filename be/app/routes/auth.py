@@ -12,15 +12,14 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/login", status_code=status.HTTP_204_NO_CONTENT)
-async def login(email: EmailStr, db_session: DBSessionDep):
-    # TODO: rate limit
+def login(email: EmailStr, db_session: DBSessionDep):
     token = AuthService.login(db_session, email)
     expires_in_str = f"{settings.MAGIC_TOKEN_EXPIRES_MINUTES} minutes"
     MailService.send_magic_link(email, token, expires_in_str)
 
 
 @router.get("/verify", response_class=RedirectResponse)
-async def verify(token: str, db_session: DBSessionDep):
+def verify(token: str, db_session: DBSessionDep):
     access_token = AuthService.verify(db_session, token)
     response = RedirectResponse(url=settings.FRONTEND_URL)
     response.set_cookie(

@@ -12,7 +12,7 @@ def _get_content(msg: str, detail: Optional[Any] = None) -> dict:
     return ErrResBody(message=msg, detail=detail).model_dump(exclude_none=True)
 
 
-async def _validation_error_handler(
+def _validation_error_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
     detail = exc.errors()
@@ -29,7 +29,7 @@ async def _validation_error_handler(
     )
 
 
-async def _http_exception_handler(
+def _http_exception_handler(
     request: Request, exc: StarletteHTTPException
 ) -> JSONResponse:
     return JSONResponse(
@@ -38,7 +38,7 @@ async def _http_exception_handler(
     )
 
 
-async def _generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+def _generic_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     logger.error(exc)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
