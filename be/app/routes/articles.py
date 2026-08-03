@@ -17,19 +17,18 @@ from app.schemas.articles import (
 )
 from app.services.articles import ArticlesService
 from app.schemas.auth import CurrentUser
-from app.dependencies.auth import admin_required, get_current_user, get_optional_user
+from app.dependencies.auth import admin_required, get_optional_user
 
 router = APIRouter(prefix="/articles", tags=["Articles"])
 
 
 @router.post(
-    "/draft", response_model=ArticleCreateResBody, status_code=status.HTTP_201_CREATED
+    "/", response_model=ArticleCreateResBody, status_code=status.HTTP_201_CREATED
 )
-def save_draft(
+def create_article(
     data: ArticleCreateReqBody, db_session: DBSessionDep, _=Depends(admin_required)
 ):
-    """Create a new draft."""
-    return ArticlesService.save_draft(db_session, data)
+    return ArticlesService.create_article(db_session, data)
 
 
 @router.get("/check-slug", response_model=CheckSlugResBody)

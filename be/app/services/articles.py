@@ -38,7 +38,7 @@ def decode_cursor(cursor: str) -> int:
 
 class ArticlesService:
     @staticmethod
-    def save_draft(
+    def create_article(
         db_session: DBSession, data: ArticleCreateReqBody
     ) -> ArticleCreateResBody:
         if not ArticlesService.is_slug_unique(db_session, data.slug):
