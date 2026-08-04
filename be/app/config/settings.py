@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     )
 
     ENV: Env
+    ALLOWED_ORIGINS: list[str]
 
     # Auth
     ADMIN_EMAIL: str
