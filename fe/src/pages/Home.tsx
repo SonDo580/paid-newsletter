@@ -1,12 +1,20 @@
 import { Link } from "react-router-dom";
+import { usePublicArticlesInfiniteQuery } from "~/api/articles.hooks";
+import { QueryView } from "~/components/common/QueryView";
+import { Button } from "~/components/ui/Button";
 import { PATHS } from "~/utils/paths";
 
 export default function Home() {
-  const articles = [
-    { title: "example title 1", slug: "example-slug-1" },
-    { title: "example title 2", slug: "example-slug-2" },
-    { title: "example title 3", slug: "example-slug-3" },
-  ];
+  const {
+    data,
+    isLoading,
+    error,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = usePublicArticlesInfiniteQuery(1);
+
+  const articles = data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -21,18 +29,30 @@ export default function Home() {
           </Link>
         </div>
 
-        <ul>
-          {articles.map((a) => (
-            <li key={a.slug} className="py-2">
-              <Link
-                to={PATHS.ARTICLE(a.slug)}
-                className="text-lg text-blue-600 hover:underline"
-              >
-                {a.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <QueryView isLoading={isLoading} error={error}>
+          <ul>
+            {articles.map((a) => (
+              <li key={a.slug} className="py-2">
+                <Link
+                  to={PATHS.ARTICLE(a.slug)}
+                  className="text-lg text-blue-600 hover:underline"
+                >
+                  {a.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          {hasNextPage && (
+            <Button
+              variant="secondary"
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+            >
+              {isFetchingNextPage ? "Loading more..." : "Load more"}
+            </Button>
+          )}
+        </QueryView>
       </div>
     </div>
   );

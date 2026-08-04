@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { VALIDATION_MSG } from "~/utils/form";
+import type { PrimitiveParam } from "./shared";
 
 const minTitleLength = 10;
 const maxTitleLength = 150;
@@ -50,4 +51,30 @@ export interface Article {
   created_at: string;
   updated_at: string;
   published_at?: string | null;
+}
+
+export type ArticlesListForReaderParams = {
+  limit?: number;
+  cursor?: string;
+  [key: string]: PrimitiveParam;
+};
+
+interface ArticlesListItemForReader {
+  title: string;
+  slug: string;
+}
+
+export interface ArticlesListForReaderResBody {
+  items: ArticlesListItemForReader[];
+  next_cursor: string | null;
+}
+
+type AccessStatus = "full" | "teaser";
+
+export interface PublicArticle {
+  title: string;
+  slug: string;
+  content: string;
+  published_at: string; // ISO datetime string
+  access_status: AccessStatus;
 }

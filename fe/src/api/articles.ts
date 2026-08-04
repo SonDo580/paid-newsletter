@@ -1,12 +1,15 @@
 import type {
   Article,
+  ArticlesListForReaderParams,
+  ArticlesListForReaderResBody,
   CreateArticleReqBody,
+  PublicArticle,
   UpdateArticleReqBody,
 } from "~/schemas/articles";
 import { apiClient } from "./apiClient";
 
 export async function getArticleById(id: string): Promise<Article> {
-  return apiClient<Article>(`articles/id/${id}`);
+  return apiClient<Article>(`/articles/id/${id}`);
 }
 
 export async function createArticle(data: CreateArticleReqBody): Promise<void> {
@@ -23,5 +26,22 @@ export async function updateArticle(
   return apiClient<void>(`/articles/${id}`, {
     method: "PATCH",
     body: data,
+  });
+}
+
+export async function getPublicArticles(
+  params: ArticlesListForReaderParams,
+): Promise<ArticlesListForReaderResBody> {
+  return apiClient<ArticlesListForReaderResBody>(`/articles/list/reader`, {
+    method: "GET",
+    params,
+  });
+}
+
+export async function getPublicArticleBySlug(
+  slug: string,
+): Promise<PublicArticle> {
+  return apiClient<PublicArticle>(`/articles/slug/${slug}`, {
+    method: "GET",
   });
 }

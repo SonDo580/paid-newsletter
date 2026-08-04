@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { getApiErrMsg } from "~/api/apiError";
 import {
-  useArticleQuery,
+  useArticleByIdQuery,
   useUpdateArticleMutation,
 } from "~/api/articles.hooks";
 import type { Article, ArticleFormValues } from "~/schemas/articles";
@@ -10,6 +10,7 @@ import { PATHS } from "~/utils/paths";
 import ArticleForm from "./ArticleForm";
 import type { FormState } from "react-hook-form";
 import { getDirtyValues } from "~/utils/form";
+import { QueryView } from "~/components/common/QueryView";
 
 function articleToFormValues(article: Article): ArticleFormValues {
   return {
@@ -29,7 +30,7 @@ export default function EditArticle() {
     data: article,
     isLoading: getArticleLoading,
     error: getArticleErr,
-  } = useArticleQuery(id);
+  } = useArticleByIdQuery(id);
   const { mutateAsync: updateArticle, isPending: updateArticlePending } =
     useUpdateArticleMutation(id);
 
@@ -47,24 +48,14 @@ export default function EditArticle() {
     }
   };
 
-  if (getArticleLoading) {
-    return <div>Loading article details...</div>;
-  }
-
-  if (getArticleErr) {
-    return (
-      <div className="text-read-600">
-        Get article details error: {getArticleErr.message}
-      </div>
-    );
-  }
-
   return (
-    <ArticleForm
-      initialData={articleToFormValues(article)}
-      onSubmit={handleUpdateArticle}
-      isSubmitting={updateArticlePending}
-      apiErrMsg={updateArticleErrMsg}
-    />
+    <QueryView isLoading={getArticleLoading} error={getArticleErr}>
+      <ArticleForm
+        initialData={articleToFormValues(article)}
+        onSubmit={handleUpdateArticle}
+        isSubmitting={updateArticlePending}
+        apiErrMsg={updateArticleErrMsg}
+      />
+    </QueryView>
   );
 }

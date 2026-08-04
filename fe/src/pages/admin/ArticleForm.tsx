@@ -43,7 +43,6 @@ export default function ArticleForm({
   const isEditMode = !!initialData;
   const [isSlugCustomized, setIsSlugCustomized] = useState(false);
 
-  // TODO: validate slug API
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isEditMode || isSlugCustomized) {
       return;

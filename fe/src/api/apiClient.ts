@@ -1,20 +1,19 @@
+import type { QueryParams } from "~/schemas/shared";
 import { ApiError } from "./apiError";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, "");
 
-type PrimitiveParam = string | number | boolean | undefined | null;
-type QueryParams = Record<string, PrimitiveParam | PrimitiveParam[]>;
-
 interface FetchOptions extends RequestInit {
   body?: any;
-  params?: QueryParams; // query parameters
+  params?: QueryParams;
 }
 
-function buildUrl(endpoint: string, params: QueryParams): string {
+function buildUrl(endpoint: string, params?: QueryParams): string {
   const url = new URL(`${BASE_URL}/${endpoint.replace(/^\/+/, "")}`);
+
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
-      if (value === undefined && value === null) {
+      if (value === undefined || value === null) {
         return;
       }
 
