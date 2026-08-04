@@ -64,7 +64,7 @@ export default function AdminArticles() {
               <td className={cellCls}>{a.slug}</td>
               <td className={cellCls}>{a.is_free ? "Free" : "Paid"}</td>
               <td className={cellCls}>
-                {a.is_published ? "Published" : "Draft"}
+                {a.is_published ? "Public" : "Private"}
               </td>
               <td className={cellCls}>{formatDate(a.published_at)}</td>
               <td className={cellCls}>{formatDate(a.created_at)}</td>

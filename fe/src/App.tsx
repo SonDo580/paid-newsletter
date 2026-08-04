@@ -4,9 +4,10 @@ import Login from "./pages/Login";
 import Article from "./pages/Article";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminArticles from "./pages/admin/AdminArticles";
-import ArticleForm from "./pages/admin/ArticleForm";
 import NotFound from "./pages/NotFound";
 import { PATHS } from "~/utils/paths";
+import CreateArticle from "./pages/admin/CreateArticle";
+import EditArticle from "./pages/admin/EditArticle";
 
 function App() {
   return (
@@ -24,8 +25,8 @@ function App() {
             element={<Navigate to={PATHS.ADMIN.ARTICLES} replace />}
           />
           <Route path="articles" element={<AdminArticles />} />
-          <Route path="articles/create" element={<ArticleForm />} />
-          <Route path="articles/:id" element={<ArticleForm />} />
+          <Route path="articles/create" element={<CreateArticle />} />
+          <Route path="articles/:id" element={<EditArticle />} />
         </Route>
 
         {/* Fallback */}
