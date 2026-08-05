@@ -49,6 +49,10 @@ class ArticlesService:
 
         try:
             article = Article.model_validate(data)
+            if data.is_published:
+                article.published_at = datetime_utils.now_utc()
+                # TODO: email notification to subscribers
+
             db_session.add(article)
             db_session.commit()
             db_session.refresh(article)
