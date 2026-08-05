@@ -4,9 +4,9 @@ import { useAdminArticlesQuery } from "~/api/articles.hooks";
 import { CustomSelect } from "~/components/common/CustomSelect";
 import { CustomTable, type Column } from "~/components/common/CustomTable";
 import { Pagination } from "~/components/common/Pagination";
+import { SearchInput } from "~/components/common/SearchInput";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import type {
   ArticlesListForAdminParams,
   ArticlesListItemForAdmin,
@@ -119,10 +119,10 @@ export default function AdminArticles() {
     <div className="py-6 space-y-4">
       {/* Filter */}
       <div className="flex flex-wrap gap-3 p-4 bg-card border border-gray-200 rounded-lg shadow-xs">
-        <Input
+        <SearchInput
           placeholder="Search"
           value={params.keyword ?? ""}
-          onChange={(e) => updateParams({ keyword: e.target.value, page: 1 })}
+          onChange={(val) => updateParams({ keyword: val, page: 1 })}
           className="w-64"
         />
 
