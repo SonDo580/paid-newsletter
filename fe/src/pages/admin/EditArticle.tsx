@@ -12,7 +12,10 @@ import type { FormState } from "react-hook-form";
 import { getDirtyValues } from "~/utils/form";
 import { QueryView } from "~/components/common/QueryView";
 
-function articleToFormValues(article: Article): ArticleFormValues {
+function articleToFormValues(article?: Article): ArticleFormValues | undefined {
+  if (!article) {
+    return undefined;
+  }
   return {
     title: article.title,
     slug: article.slug,

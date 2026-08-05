@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { usePublicArticlesInfiniteQuery } from "~/api/articles.hooks";
 import { QueryView } from "~/components/common/QueryView";
-import { Button } from "~/components/ui/Button";
+import { Button } from "~/components/ui/button";
 import { PATHS } from "~/utils/paths";
 
 export default function Home() {

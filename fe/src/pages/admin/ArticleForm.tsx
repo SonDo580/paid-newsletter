@@ -1,11 +1,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { FormState, useForm } from "react-hook-form";
-import { Button } from "~/components/ui/Button";
-import { Checkbox } from "~/components/ui/Checkbox";
-import { FormField } from "~/components/ui/FormField";
-import { Input } from "~/components/ui/Input";
-import { Textarea } from "~/components/ui/Textarea";
+import { Controller, FormState, useForm } from "react-hook-form";
+import { Button } from "~/components/ui/button";
+import { Checkbox } from "~/components/ui/checkbox";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "~/components/ui/field";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
 import { articleFormSchema, type ArticleFormValues } from "~/schemas/articles";
 
 interface ArticleFormProps {
@@ -24,24 +29,19 @@ export default function ArticleForm({
   isSubmitting,
   apiErrMsg,
 }: ArticleFormProps) {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isDirty, dirtyFields },
-  } = useForm<ArticleFormValues>({
-    resolver: zodResolver(articleFormSchema),
-    defaultValues: {
-      title: initialData?.title ?? "",
-      slug: initialData?.slug ?? "",
-      content: initialData?.content ?? "",
-      is_free: initialData?.is_free ?? false,
-      is_published: initialData?.is_published ?? false,
-    },
-  });
-
   const isEditMode = !!initialData;
   const [isSlugCustomized, setIsSlugCustomized] = useState(false);
+
+  const form = useForm<ArticleFormValues>({
+    resolver: zodResolver(articleFormSchema),
+    defaultValues: initialData || {
+      title: "",
+      slug: "",
+      content: "",
+      is_free: false,
+      is_published: false,
+    },
+  });
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isEditMode || isSlugCustomized) {
@@ -55,11 +55,11 @@ export default function ArticleForm({
       .replace(/[\s_-]+/g, "-") // collapse each run of spaces,underscores,hyphens into a hyphen
       .replace(/^-+|-+$/g, ""); // remove leading and trailing hyphens
 
-    setValue("slug", generatedSlug, { shouldValidate: true });
+    form.setValue("slug", generatedSlug, { shouldValidate: true });
   };
 
   const handleFormSubmit = (data: ArticleFormValues) => {
-    onSubmit(data, dirtyFields);
+    onSubmit(data, form.formState.dirtyFields);
   };
 
   return (
@@ -69,43 +69,104 @@ export default function ArticleForm({
       </h1>
 
       <form
-        onSubmit={handleSubmit(handleFormSubmit)}
+        onSubmit={form.handleSubmit(handleFormSubmit)}
         className="flex flex-col gap-4 max-w-2xl"
       >
-        <FormField label="Title" error={errors.title?.message}>
-          <Input
-            type="text"
-            placeholder="Title"
-            {...register("title", {
-              onChange: handleTitleChange,
-            })}
+        <FieldGroup>
+          <Controller
+            name="title"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>Title</FieldLabel>
+                <Input
+                  {...field}
+                  placeholder="Title"
+                  onChange={(e) => {
+                    field.onChange(e);
+                    handleTitleChange(e);
+                  }}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
           />
-        </FormField>
 
-        <FormField label="Slug" error={errors.slug?.message}>
-          <Input
-            type="text"
-            placeholder="Slug"
-            disabled={isEditMode}
-            {...register("slug", {
-              onChange: () => setIsSlugCustomized(true),
-            })}
+          <Controller
+            name="slug"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>Slug</FieldLabel>
+                <Input
+                  {...field}
+                  placeholder="Slug"
+                  disabled={isEditMode}
+                  onChange={(e) => {
+                    field.onChange(e);
+                    setIsSlugCustomized(true);
+                  }}
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
           />
-        </FormField>
 
-        <FormField label="Content" error={errors.content?.message}>
-          <Textarea placeholder="Content" rows={5} {...register("content")} />
-        </FormField>
+          <Controller
+            name="content"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field>
+                <FieldLabel>Content</FieldLabel>
+                <Textarea {...field} placeholder="Content" rows={5} />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
 
-        <div className="flex gap-6 p-2">
-          <Checkbox label="Free" {...register("is_free")} />
-          <Checkbox label="Publish" {...register("is_published")} />
-        </div>
+          <Controller
+            name="is_free"
+            control={form.control}
+            render={({ field }) => (
+              <Field className="flex items-center gap-2">
+                <FieldLabel className="cursor-pointer">
+                  <Checkbox
+                    checked={!!field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  Free
+                </FieldLabel>
+              </Field>
+            )}
+          />
+
+          <Controller
+            name="is_published"
+            control={form.control}
+            render={({ field }) => (
+              <Field className="flex items-center gap-2">
+                <FieldLabel className="cursor-pointer">
+                  <Checkbox
+                    checked={!!field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  Publish
+                </FieldLabel>
+              </Field>
+            )}
+          />
+        </FieldGroup>
 
         <Button
           type="submit"
-          variant="primary"
-          disabled={isSubmitting || (!isDirty && isEditMode)}
+          variant="default"
+          disabled={isSubmitting || (!form.formState.isDirty && isEditMode)}
         >
           {isSubmitting ? "Saving..." : "Save"}
         </Button>

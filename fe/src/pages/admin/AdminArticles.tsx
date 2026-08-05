@@ -116,7 +116,11 @@ export default function AdminArticles() {
   ];
 
   return (
-    <div className="py-6 space-y-4">
+    <div className="space-y-4">
+      <Link to={PATHS.ADMIN.CREATE_ARTICLE} className="inline-block">
+        <Button variant="default">Create Article</Button>
+      </Link>
+
       {/* Filter */}
       <div className="flex flex-wrap gap-3 p-4 bg-card border border-gray-200 rounded-lg shadow-xs">
         <SearchInput

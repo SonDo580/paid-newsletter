@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { Button } from "~/components/ui/Button";
-import { Input } from "~/components/ui/Input";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { PATHS } from "~/utils/paths";
 
 export default function Login() {
@@ -10,7 +10,7 @@ export default function Login() {
         <h1 className="text-center mb-6 text-2xl fond-bold">Log In</h1>
         <form className="flex flex-col gap-4">
           <Input type="email" placeholder="Enter your email" />
-          <Button type="button" variant="primary">
+          <Button type="submit" variant="default">
             Send Login Link
           </Button>
         </form>

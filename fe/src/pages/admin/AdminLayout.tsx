@@ -14,9 +14,6 @@ export default function AdminLayout() {
           <NavLink to={PATHS.ADMIN.ARTICLES} className={getNavItemCls} end>
             All Articles
           </NavLink>
-          <NavLink to={PATHS.ADMIN.CREATE_ARTICLE} className={getNavItemCls}>
-            Create Article
-          </NavLink>
           <hr className="my-2 border-gray-200" />
           <NavLink to={PATHS.HOME} className={getNavItemCls}>
             Back to Public Site
