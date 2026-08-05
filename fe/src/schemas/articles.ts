@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { VALIDATION_MSG } from "~/utils/form";
-import type { PrimitiveParam } from "./shared";
+import type { PrimitiveParam, SortOrder } from "./shared";
 
 const minTitleLength = 10;
 const maxTitleLength = 150;
@@ -77,4 +77,38 @@ export interface PublicArticle {
   content: string;
   published_at: string; // ISO datetime string
   access_status: AccessStatus;
+}
+
+export type ArticleSortBy =
+  | "id"
+  | "title"
+  | "created_at"
+  | "updated_at"
+  | "published_at";
+
+export interface ArticlesListForAdminParams {
+  page?: number;
+  page_size?: number;
+  keyword?: string;
+  is_free?: boolean;
+  is_published?: boolean;
+  sort_by?: ArticleSortBy;
+  sort_order?: SortOrder;
+  [key: string]: PrimitiveParam;
+}
+
+export interface ArticlesListItemForAdmin {
+  id: number;
+  title: string;
+  slug: string;
+  is_free: boolean;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+  published_at: string | null;
+}
+
+export interface ArticlesListForAdminResBody {
+  items: ArticlesListItemForAdmin[];
+  total: number;
 }

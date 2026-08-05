@@ -1,11 +1,13 @@
 import {
   type Article,
+  type ArticlesListForAdminParams,
   type CreateArticleReqBody,
   type PublicArticle,
   type UpdateArticleReqBody,
 } from "~/schemas/articles";
 import type { ApiError } from "./apiError";
 import {
+  keepPreviousData,
   useInfiniteQuery,
   useMutation,
   useQuery,
@@ -13,6 +15,7 @@ import {
 } from "@tanstack/react-query";
 import {
   createArticle,
+  getAdminArticles,
   getArticleById,
   getPublicArticleBySlug,
   getPublicArticles,
@@ -21,7 +24,9 @@ import {
 
 export const articleKeys = {
   all: ["articles"] as const,
-  list: () => [...articleKeys.all, "list"] as const,
+  publicList: () => [...articleKeys.all, "publicList"] as const,
+  adminList: (params: ArticlesListForAdminParams) =>
+    [...articleKeys.all, "adminList", params] as const,
   detail: (idOrSlug: string) =>
     [...articleKeys.all, "detail", idOrSlug] as const,
 };
@@ -42,12 +47,21 @@ export function usePublicArticleBySlugQuery(slug?: string) {
   });
 }
 
-export function usePublicArticlesInfiniteQuery(limit?: number) {
+export function usePublicArticlesInfiniteQuery(limit: number = 1) {
   return useInfiniteQuery({
-    queryKey: articleKeys.list(),
-    queryFn: ({ pageParam }) => getPublicArticles({ limit, cursor: pageParam }),
+    queryKey: articleKeys.publicList(),
+    queryFn: ({ pageParam }) =>
+      getPublicArticles({ limit, cursor: pageParam }),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
+  });
+}
+
+export function useAdminArticlesQuery(params: ArticlesListForAdminParams) {
+  return useQuery({
+    queryKey: articleKeys.adminList(params),
+    queryFn: () => getAdminArticles(params),
+    placeholderData: keepPreviousData,
   });
 }
 

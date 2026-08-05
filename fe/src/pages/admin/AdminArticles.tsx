@@ -1,86 +1,189 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "~/components/ui/Button";
+import { useAdminArticlesQuery } from "~/api/articles.hooks";
+import { CustomSelect } from "~/components/common/CustomSelect";
+import { CustomTable, type Column } from "~/components/common/CustomTable";
+import { Pagination } from "~/components/common/Pagination";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import type {
+  ArticlesListForAdminParams,
+  ArticlesListItemForAdmin,
+  ArticleSortBy,
+} from "~/schemas/articles";
+import type { SortOrder } from "~/schemas/shared";
 import { PATHS } from "~/utils/paths";
 
+const DEFAULT_PARAMS: ArticlesListForAdminParams = {
+  page: 1,
+  page_size: 10,
+  keyword: "",
+  is_free: undefined,
+  is_published: undefined,
+  sort_by: "id",
+  sort_order: "desc",
+};
+
 export default function AdminArticles() {
-  //   Mock data
-  const articles = [
-    {
-      id: 0,
-      title: "String String String String",
-      slug: "string-string-string-string",
-      is_free: true,
-      is_published: true,
-      created_at: "2026-08-03T04:03:19.124Z",
-      updated_at: "2026-08-03T04:03:19.124Z",
-      published_at: "2026-08-03T04:03:19.124Z",
-    },
-    {
-      id: 1,
-      title: "String String String String 1",
-      slug: "string-string-string-string-1",
-      is_free: false,
-      is_published: false,
-      created_at: "2026-08-03T04:03:19.124Z",
-      updated_at: "2026-08-03T04:03:19.124Z",
-      published_at: null,
-    },
-  ];
+  const [params, setParams] =
+    useState<ArticlesListForAdminParams>(DEFAULT_PARAMS);
 
-  const cellCls = "px-4 py-2";
+  const updateParams = (newParams: Partial<ArticlesListForAdminParams>) => {
+    setParams((prev) => ({ ...prev, ...newParams }));
+  };
 
-  const formatDate = (dateStr: string | null) => {
-    if (!dateStr) {
-      return "_";
-    }
-    return new Date(dateStr).toLocaleDateString(undefined, {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+  const { data, isLoading, error } = useAdminArticlesQuery(params);
+
+  const handleSort = (columnSortKey: string) => {
+    const nextOrder: SortOrder =
+      params.sort_by === columnSortKey && params.sort_order === "asc"
+        ? "desc"
+        : "asc";
+
+    updateParams({
+      sort_by: columnSortKey as ArticleSortBy,
+      sort_order: nextOrder,
     });
   };
 
+  const formatDate = (dateStr: string | null) =>
+    dateStr
+      ? new Date(dateStr).toLocaleDateString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : "_";
+
+  const tableColumns: Column<ArticlesListItemForAdmin>[] = [
+    { key: "id", header: "ID", sortable: true },
+    { key: "title", header: "Title", sortable: true },
+    {
+      key: "is_free",
+      header: "Access type",
+      render: (item) => (
+        <Badge variant={item.is_free ? "outline" : "default"}>
+          {item.is_free ? "Free" : "Paid"}
+        </Badge>
+      ),
+    },
+    {
+      key: "is_published",
+      header: "Publish status",
+      render: (item) => (
+        <Badge variant={item.is_published ? "outline" : "destructive"}>
+          {item.is_published ? "Published" : "Private"}
+        </Badge>
+      ),
+    },
+    {
+      key: "published_at",
+      header: "Published at",
+      sortable: true,
+      render: (item) => formatDate(item.published_at),
+    },
+    {
+      key: "created_at",
+      header: "Created at",
+      sortable: true,
+      render: (item) => formatDate(item.created_at),
+    },
+    {
+      key: "updated_at",
+      header: "Updated at",
+      sortable: true,
+      render: (item) => formatDate(item.updated_at),
+    },
+    {
+      key: "actions",
+      header: "Actions",
+      render: (item) => (
+        <div className="flex items-center gap-2">
+          <Link to={PATHS.ADMIN.EDIT_ARTICLE(item.id)}>
+            <Button variant="default" size="sm">
+              Edit
+            </Button>
+          </Link>
+          <Link to={PATHS.ARTICLE(item.slug)} target="_blank">
+            <Button variant="secondary" size="sm">
+              Read
+            </Button>
+          </Link>
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="rounded-lg border border-gray-200">
-      <table className="w-full text-left">
-        <thead className="bg-gray-50 font-semibold text-gray-700 border-b border-gray-200">
-          <tr>
-            <th className={cellCls}>ID</th>
-            <th className={cellCls}>Title</th>
-            <th className={cellCls}>Slug</th>
-            <th className={cellCls}>Free</th>
-            <th className={cellCls}>Published</th>
-            <th className={cellCls}>Published at</th>
-            <th className={cellCls}>Created at</th>
-            <th className={cellCls}>Updated at</th>
-            <th className={cellCls}>Actions</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-200 bg-white text-gray-700">
-          {articles.map((a) => (
-            <tr key={a.id}>
-              <td className={cellCls}>{a.id}</td>
-              <td className={cellCls}>{a.title}</td>
-              <td className={cellCls}>{a.slug}</td>
-              <td className={cellCls}>{a.is_free ? "Free" : "Paid"}</td>
-              <td className={cellCls}>
-                {a.is_published ? "Public" : "Private"}
-              </td>
-              <td className={cellCls}>{formatDate(a.published_at)}</td>
-              <td className={cellCls}>{formatDate(a.created_at)}</td>
-              <td className={cellCls}>{formatDate(a.updated_at)}</td>
-              <td className={`${cellCls} flex gap-2`}>
-                <Link to={PATHS.ADMIN.EDIT_ARTICLE(a.id)}>
-                  <Button variant="primary">Edit</Button>
-                </Link>
-                <Link to={PATHS.ARTICLE(a.slug)} target="_blank">
-                  <Button variant="secondary">Read</Button>
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="py-6 space-y-4">
+      {/* Filter */}
+      <div className="flex flex-wrap gap-3 p-4 bg-card border border-gray-200 rounded-lg shadow-xs">
+        <Input
+          placeholder="Search"
+          value={params.keyword ?? ""}
+          onChange={(e) => updateParams({ keyword: e.target.value, page: 1 })}
+          className="w-64"
+        />
+
+        <CustomSelect
+          value={params.is_free === undefined ? "all" : String(params.is_free)}
+          onValueChange={(val) =>
+            updateParams({
+              is_free: val === "all" ? undefined : val === "true",
+              page: 1,
+            })
+          }
+          options={[
+            { value: "all", label: "All" },
+            { value: "true", label: "Free" },
+            { value: "false", label: "Paid" },
+          ]}
+          className="w-32"
+        />
+
+        <CustomSelect
+          value={
+            params.is_published === undefined
+              ? "all"
+              : String(params.is_published)
+          }
+          onValueChange={(val) =>
+            updateParams({
+              is_published: val === "all" ? undefined : val === "true",
+              page: 1,
+            })
+          }
+          options={[
+            { value: "all", label: "All" },
+            { value: "true", label: "Public" },
+            { value: "false", label: "Private" },
+          ]}
+          className="w-32"
+        />
+      </div>
+
+      {/* Table */}
+      <CustomTable
+        columns={tableColumns}
+        data={data?.items}
+        error={error}
+        rowKey={(item) => item.id}
+        isLoading={isLoading}
+        sortBy={params.sort_by}
+        sortOrder={params.sort_order}
+        onSortChange={handleSort}
+      />
+
+      {/* Pagination */}
+      <Pagination
+        page={params.page ?? 1}
+        pageSize={params.page_size ?? 10}
+        totalItems={data?.total ?? 0}
+        onPageChange={(page) => updateParams({ page })}
+        onPageSizeChange={(page_size) => updateParams({ page_size })}
+        pageSizeOptions={[1, 10, 20, 50]}
+      />
     </div>
   );
 }

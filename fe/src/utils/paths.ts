@@ -1,7 +1,7 @@
 export const PATHS = {
   HOME: "/",
   LOGIN: "/login",
-  ARTICLE: (slug: string) => `articles/${slug}`,
+  ARTICLE: (slug: string) => `/articles/${slug}`,
   ADMIN: {
     ROOT: "/admin",
     ARTICLES: "/admin/articles",

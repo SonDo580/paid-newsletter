@@ -12,7 +12,7 @@ export default function Home() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = usePublicArticlesInfiniteQuery(1);
+  } = usePublicArticlesInfiniteQuery();
 
   const articles = data?.pages.flatMap((page) => page.items) ?? [];
 

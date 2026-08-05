@@ -1,5 +1,7 @@
 import type {
   Article,
+  ArticlesListForAdminParams,
+  ArticlesListForAdminResBody,
   ArticlesListForReaderParams,
   ArticlesListForReaderResBody,
   CreateArticleReqBody,
@@ -43,5 +45,14 @@ export async function getPublicArticleBySlug(
 ): Promise<PublicArticle> {
   return apiClient<PublicArticle>(`/articles/slug/${slug}`, {
     method: "GET",
+  });
+}
+
+export async function getAdminArticles(
+  params: ArticlesListForAdminParams,
+): Promise<ArticlesListForAdminResBody> {
+  return apiClient<ArticlesListForAdminResBody>("/articles/list/admin", {
+    method: "GET",
+    params,
   });
 }
