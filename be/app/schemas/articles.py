@@ -32,6 +32,7 @@ class ArticleCreateReqBody(BaseModel):
         "BE provides endpoint to check slug uniqueness.",
     )
     is_free: bool = False
+    is_published: bool = False
 
 
 class ArticleCreateResBody(BaseModel):
