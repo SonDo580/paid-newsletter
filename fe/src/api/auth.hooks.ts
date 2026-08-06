@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ApiError } from "./apiError";
 import type { CurrentUser, LoginReqBody } from "~/schemas/auth";
+import type { ApiError } from "./apiError";
 import { getMe, login, logout } from "./auth";
 
 export const authKeys = {

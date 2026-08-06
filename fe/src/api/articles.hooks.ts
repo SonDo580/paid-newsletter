@@ -1,4 +1,11 @@
 import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import {
   type Article,
   type ArticlesListForAdminParams,
   type CreateArticleReqBody,
@@ -6,13 +13,6 @@ import {
   type UpdateArticleReqBody,
 } from "~/schemas/articles";
 import type { ApiError } from "./apiError";
-import {
-  keepPreviousData,
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
 import {
   createArticle,
   getAdminArticles,
@@ -50,8 +50,7 @@ export function usePublicArticleBySlugQuery(slug?: string) {
 export function usePublicArticlesInfiniteQuery(limit: number = 10) {
   return useInfiniteQuery({
     queryKey: articleKeys.publicList(),
-    queryFn: ({ pageParam }) =>
-      getPublicArticles({ limit, cursor: pageParam }),
+    queryFn: ({ pageParam }) => getPublicArticles({ limit, cursor: pageParam }),
     initialPageParam: undefined,
     getNextPageParam: (lastPage) => lastPage.next_cursor ?? undefined,
   });

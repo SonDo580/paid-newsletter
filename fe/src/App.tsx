@@ -1,17 +1,17 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-import HomePage from "./pages/HomePage";
-import LoginPage from "./pages/LoginPage";
-import ArticlePage from "./pages/ArticlePage";
-import AdminLayout from "./layouts/AdminLayout";
-import AdminArticlesPage from "./pages/admin/AdminArticlesPage";
-import NotFoundPage from "./pages/NotFoundPage";
 import { PATHS } from "~/utils/paths";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AuthProvider } from "./contexts/AuthContext";
+import AdminLayout from "./layouts/AdminLayout";
+import RootLayout from "./layouts/RootLayout";
+import AdminArticlesPage from "./pages/admin/AdminArticlesPage";
 import CreateArticlePage from "./pages/admin/CreateArticlePage";
 import EditArticlePage from "./pages/admin/EditArticlePage";
-import RootLayout from "./layouts/RootLayout";
-import { AuthProvider } from "./contexts/AuthContext";
-import { ProtectedRoute } from "./components/ProtectedRoute";
+import ArticlePage from "./pages/ArticlePage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   return (

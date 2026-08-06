@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import type { SortOrder } from "~/schemas/shared";
 import { cn } from "~/lib/utils";
+import type { SortOrder } from "~/schemas/shared";
+import { Skeleton } from "../ui/skeleton";
 import {
   Table,
   TableBody,
@@ -9,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { Skeleton } from "../ui/skeleton";
 
 export interface Column<T> {
   key: string;

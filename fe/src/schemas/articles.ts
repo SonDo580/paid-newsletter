@@ -80,11 +80,7 @@ export interface PublicArticle {
 }
 
 export type ArticleSortBy =
-  | "id"
-  | "title"
-  | "created_at"
-  | "updated_at"
-  | "published_at";
+  "id" | "title" | "created_at" | "updated_at" | "published_at";
 
 export interface ArticlesListForAdminParams {
   page?: number;

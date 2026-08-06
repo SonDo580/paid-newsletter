@@ -1,7 +1,7 @@
 import { useEffect, useState, type ChangeEvent } from "react";
-import { CustomSelect } from "./CustomSelect";
-import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { CustomSelect } from "./CustomSelect";
 
 interface PaginationProps {
   page: number;

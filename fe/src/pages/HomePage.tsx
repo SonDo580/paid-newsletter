@@ -19,9 +19,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto rounded-lg border border-gray-200 p-6">
-        <h1 className="text-2xl text-gray-600 font-semibold mb-2">
-          Articles
-        </h1>
+        <h1 className="text-2xl text-gray-600 font-semibold mb-2">Articles</h1>
         <QueryView
           isLoading={isLoading}
           error={error}

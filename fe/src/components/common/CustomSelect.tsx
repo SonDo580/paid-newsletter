@@ -31,7 +31,12 @@ export function CustomSelect<V extends string>({
   disabled,
 }: CustomSelectProps<V>) {
   return (
-    <Select items={options} value={value} onValueChange={onValueChange} disabled={disabled}>
+    <Select
+      items={options}
+      value={value}
+      onValueChange={onValueChange}
+      disabled={disabled}
+    >
       <SelectTrigger className={className}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
