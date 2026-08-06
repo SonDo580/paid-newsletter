@@ -5,6 +5,7 @@ export const VALIDATION_MSG = {
     `${field} must have at least ${count} character(s)`,
   max: (field: string, count: number) =>
     `${field} can have at most ${count} character(s)`,
+  required: (field: string) => `${field} is required`,
 };
 
 // Extract only field values that were modified by user.

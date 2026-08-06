@@ -34,6 +34,7 @@ export default function ArticleForm({
 
   const form = useForm<ArticleFormValues>({
     resolver: zodResolver(articleFormSchema),
+    mode: "onBlur",
     defaultValues: initialData || {
       title: "",
       slug: "",

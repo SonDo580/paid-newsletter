@@ -47,7 +47,7 @@ export function usePublicArticleBySlugQuery(slug?: string) {
   });
 }
 
-export function usePublicArticlesInfiniteQuery(limit: number = 1) {
+export function usePublicArticlesInfiniteQuery(limit: number = 10) {
   return useInfiniteQuery({
     queryKey: articleKeys.publicList(),
     queryFn: ({ pageParam }) =>
