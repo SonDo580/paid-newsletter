@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useLogoutMutation } from "~/api/auth.hooks";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
@@ -15,7 +15,7 @@ function Header() {
         : "text-gray-600 hover:text-gray-900",
     );
 
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authPending } = useAuth();
   const navigate = useNavigate();
   const { mutateAsync: logout, isPending: logoutPending } = useLogoutMutation();
 
@@ -40,33 +40,29 @@ function Header() {
               Admin
             </NavLink>
           )}
+          {!authPending && !isAuthenticated && (
+            <NavLink to={PATHS.LOGIN} className={getNavItemCls}>
+              Login
+            </NavLink>
+          )}
         </nav>
 
-        <div className="flex items-center gap-4 text-sm">
-          {user ? (
-            <>
-              <span className="text-gray-600">
-                Hello <strong className="text-gray-900">{user.email}</strong>
-              </span>
-              <Button
-                variant="default"
-                size="sm"
-                className="hover:bg-gray-600"
-                onClick={handleLogout}
-                disabled={logoutPending}
-              >
-                {logoutPending ? <Spinner /> : "Logout"}
-              </Button>
-            </>
-          ) : (
-            <Link
-              to={PATHS.LOGIN}
-              className="font-medium text-blue-600 hover:underline"
+        {user && (
+          <div className="flex items-center gap-4 text-sm">
+            <span className="text-gray-600">
+              Hello <strong className="text-gray-900">{user.email}</strong>
+            </span>
+            <Button
+              variant="default"
+              size="sm"
+              className="hover:bg-gray-600"
+              onClick={handleLogout}
+              disabled={logoutPending}
             >
-              Login
-            </Link>
-          )}
-        </div>
+              {logoutPending ? <Spinner /> : "Logout"}
+            </Button>
+          </div>
+        )}
       </div>
     </header>
   );

@@ -39,7 +39,7 @@ export default function Login() {
           <div className="flex flex-col text-center">
             <h2 className="font-semibold text-lg">Check your email</h2>
             <p className="text-gray-600">
-              We've sent a login link to{" "}
+              We sent a login link to{" "}
               <span className="font-medium text-gray-900">
                 {form.getValues("email")}
               </span>

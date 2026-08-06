@@ -43,4 +43,3 @@ def logout(response: Response):
         secure=settings.ENV != Env.LOCAL,
         path="/",
     )
-    return response

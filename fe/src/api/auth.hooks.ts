@@ -33,7 +33,10 @@ export function useLogoutMutation() {
   return useMutation<void, ApiError, void>({
     mutationFn: logout,
     onSuccess: () => {
-      queryClient.clear();
+      queryClient.setQueryData(authKeys.profile, null);
+      queryClient.removeQueries({
+        predicate: (query) => query.queryKey[0] !== authKeys.profile[0],
+      });
     },
   });
 }
