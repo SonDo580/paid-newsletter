@@ -2,6 +2,8 @@
 
 ```bash
 uv run uvicorn app.main:app --reload
+# or
+make dev
 ```
 
 # DB migration
