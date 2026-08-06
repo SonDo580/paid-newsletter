@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status
-from fastapi.responses import RedirectResponse
+from fastapi.responses import Response, RedirectResponse
 
 from app.config.settings import settings
 from app.common.constants import Env, CookieKey
@@ -30,5 +30,17 @@ def verify(token: str, db_session: DBSessionDep):
         samesite="lax",
         secure=settings.ENV != Env.LOCAL,
         max_age=settings.ACCESS_TOKEN_EXPIRES_DAYS * 86400,  # seconds
+    )
+    return response
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(response: Response):
+    response.delete_cookie(
+        key=CookieKey.ACCESS_TOKEN.value,
+        httponly=True,
+        samesite="lax",
+        secure=settings.ENV != Env.LOCAL,
+        path="/",
     )
     return response

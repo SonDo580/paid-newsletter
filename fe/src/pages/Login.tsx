@@ -1,14 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
 import { getApiErrMsg } from "~/api/apiError";
 import { useLoginMutation } from "~/api/auth.hooks";
 import { Button } from "~/components/ui/button";
 import { Field, FieldError, FieldGroup } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { loginSchema, type LoginFormValues } from "~/schemas/auth";
-import { PATHS } from "~/utils/paths";
 
 export default function Login() {
   const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
@@ -83,12 +81,6 @@ export default function Login() {
             {loginErrMsg && <p className="text-red-700">{loginErrMsg}</p>}
           </form>
         )}
-
-        <div className="mt-4 text-center">
-          <Link to={PATHS.HOME} className="text-gray-500 hover:underline">
-            Return to Home
-          </Link>
-        </div>
       </div>
     </div>
   );

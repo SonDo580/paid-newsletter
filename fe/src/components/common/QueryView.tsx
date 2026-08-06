@@ -1,17 +1,26 @@
 import type { ReactNode } from "react";
 
-interface QueryViewProps {
+interface QueryViewProps<T> {
   isLoading: boolean;
   error: Error | null;
-  children: ReactNode;
+  data?: T;
+  render: (data: T) => ReactNode;
 }
 
-export function QueryView({ isLoading, error, children }: QueryViewProps) {
+export function QueryView<T>({
+  isLoading,
+  error,
+  data,
+  render,
+}: QueryViewProps<T>) {
   if (isLoading) {
     return <div>Loading...</div>;
   }
   if (error) {
     return <div className="text-read-600">{error.message}</div>;
   }
-  return children;
+  if (!data) {
+    return null;
+  }
+  return render(data);
 }

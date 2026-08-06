@@ -14,45 +14,44 @@ export default function Home() {
     isFetchingNextPage,
   } = usePublicArticlesInfiniteQuery();
 
-  const articles = data?.pages.flatMap((page) => page.items) ?? [];
+  const articles = data?.pages.flatMap((page) => page.items);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto rounded-lg border border-gray-200 p-6">
-        <div className="flex items-center justify-between p-2 border-b border-gray-200 mb-6">
-          <h1 className="text-2xl fold-bold text-gray-900">Articles</h1>
-          <Link
-            to={PATHS.LOGIN}
-            className="text-xl text-blue-600 hover:underline"
-          >
-            Login
-          </Link>
-        </div>
+        <h1 className="text-2xl text-gray-600 font-semibold mb-2">Articles</h1>
+        <hr />
+        <QueryView
+          isLoading={isLoading}
+          error={error}
+          data={articles}
+          render={(articles) => (
+            <>
+              <ul>
+                {articles.map((a) => (
+                  <li key={a.slug} className="py-2">
+                    <Link
+                      to={PATHS.ARTICLE(a.slug)}
+                      className="text-lg text-blue-600 hover:underline"
+                    >
+                      {a.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
 
-        <QueryView isLoading={isLoading} error={error}>
-          <ul>
-            {articles.map((a) => (
-              <li key={a.slug} className="py-2">
-                <Link
-                  to={PATHS.ARTICLE(a.slug)}
-                  className="text-lg text-blue-600 hover:underline"
+              {hasNextPage && (
+                <Button
+                  variant="secondary"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
                 >
-                  {a.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-
-          {hasNextPage && (
-            <Button
-              variant="secondary"
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-            >
-              {isFetchingNextPage ? "Loading more..." : "Load more"}
-            </Button>
+                  {isFetchingNextPage ? "Loading more..." : "Load more"}
+                </Button>
+              )}
+            </>
           )}
-        </QueryView>
+        ></QueryView>
       </div>
     </div>
   );

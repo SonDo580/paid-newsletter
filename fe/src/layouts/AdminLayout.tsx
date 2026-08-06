@@ -7,16 +7,12 @@ export default function AdminLayout() {
     `;
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex">
       <aside className="w-64 border-r border-gray-200 p-3">
         <h3 className="mb-6 text-xl font-bold tracking-tight">Admin Panel</h3>
-        <nav className="flex flex-col gap-3">
+        <nav className="flex flex-col gap-2">
           <NavLink to={PATHS.ADMIN.ARTICLES} className={getNavItemCls} end>
             All Articles
-          </NavLink>
-          <hr className="my-2 border-gray-200" />
-          <NavLink to={PATHS.HOME} className={getNavItemCls}>
-            Back to Public Site
           </NavLink>
         </nav>
       </aside>

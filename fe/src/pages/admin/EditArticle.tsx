@@ -12,10 +12,7 @@ import type { FormState } from "react-hook-form";
 import { getDirtyValues } from "~/utils/form";
 import { QueryView } from "~/components/common/QueryView";
 
-function articleToFormValues(article?: Article): ArticleFormValues | undefined {
-  if (!article) {
-    return undefined;
-  }
+function articleToFormValues(article: Article): ArticleFormValues {
   return {
     title: article.title,
     slug: article.slug,
@@ -52,13 +49,18 @@ export default function EditArticle() {
   };
 
   return (
-    <QueryView isLoading={getArticleLoading} error={getArticleErr}>
-      <ArticleForm
-        initialData={articleToFormValues(article)}
-        onSubmit={handleUpdateArticle}
-        isSubmitting={updateArticlePending}
-        apiErrMsg={updateArticleErrMsg}
-      />
-    </QueryView>
+    <QueryView
+      isLoading={getArticleLoading}
+      error={getArticleErr}
+      data={article}
+      render={(article) => (
+        <ArticleForm
+          initialData={articleToFormValues(article)}
+          onSubmit={handleUpdateArticle}
+          isSubmitting={updateArticlePending}
+          apiErrMsg={updateArticleErrMsg}
+        />
+      )}
+    ></QueryView>
   );
 }
