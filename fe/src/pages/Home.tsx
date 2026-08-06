@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { usePublicArticlesInfiniteQuery } from "~/api/articles.hooks";
-import { QueryView } from "~/components/common/QueryView";
+import { QueryView } from "~/components/QueryView";
 import { Button } from "~/components/ui/button";
 import { PATHS } from "~/utils/paths";
 

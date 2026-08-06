@@ -10,7 +10,7 @@ import { PATHS } from "~/utils/paths";
 import ArticleForm from "./ArticleForm";
 import type { FormState } from "react-hook-form";
 import { getDirtyValues } from "~/utils/form";
-import { QueryView } from "~/components/common/QueryView";
+import { QueryView } from "~/components/QueryView";
 
 function articleToFormValues(article: Article): ArticleFormValues {
   return {

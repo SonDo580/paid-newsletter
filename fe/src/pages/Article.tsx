@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { usePublicArticleBySlugQuery } from "~/api/articles.hooks";
-import { QueryView } from "~/components/common/QueryView";
+import { QueryView } from "~/components/QueryView";
 import type { PublicArticle } from "~/schemas/articles";
 
 interface ArticleDetailsProps {

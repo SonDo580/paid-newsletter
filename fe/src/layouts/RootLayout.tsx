@@ -16,7 +16,7 @@ function Header() {
         : "text-gray-600 hover:text-gray-900",
     );
 
-  const { user, isAuthenticated, isLoading: authPending } = useAuth();
+  const { user, authPending } = useAuth();
   const navigate = useNavigate();
   const { mutateAsync: logout, isPending: logoutPending } = useLogoutMutation();
 
@@ -41,7 +41,7 @@ function Header() {
               Admin
             </NavLink>
           )}
-          {!authPending && !isAuthenticated && (
+          {!authPending && !user && (
             <NavLink to={PATHS.LOGIN} className={getNavItemCls}>
               Login
             </NavLink>

@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { Skeleton } from "../ui/skeleton";
 
 interface QueryViewProps<T> {
   isLoading: boolean;
@@ -15,7 +14,7 @@ export function QueryView<T>({
   render,
 }: QueryViewProps<T>) {
   if (isLoading) {
-    return <div><Skeleton className="h-5 w-full" /></div>;
+    return <div>Loading...</div>;
   }
   if (error) {
     return <div className="text-red-600">{error.message}</div>;

@@ -4,18 +4,16 @@ import type { CurrentUser } from "~/schemas/auth";
 
 interface AuthContextType {
   user: CurrentUser | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
+  authPending: boolean;
 }
 
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user = null, isLoading } = useCurrentUserQuery();
+  const { data: user = null, isLoading: authPending } = useCurrentUserQuery();
   const contextValue = {
     user,
-    isAuthenticated: !!user,
-    isLoading,
+    authPending,
   };
 
   return (
