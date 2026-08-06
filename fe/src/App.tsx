@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Article from "./pages/Article";
@@ -14,6 +15,8 @@ import { AuthProvider } from "./contexts/AuthContext";
 function App() {
   return (
     <AuthProvider>
+      <Toaster position="top-right" richColors />
+
       <BrowserRouter>
         <Routes>
           <Route element={<RootLayout />}>

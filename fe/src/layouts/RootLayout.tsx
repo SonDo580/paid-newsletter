@@ -1,4 +1,5 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useLogoutMutation } from "~/api/auth.hooks";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
@@ -24,7 +25,7 @@ function Header() {
       await logout();
       navigate(PATHS.HOME);
     } catch (err) {
-      alert(`Logout error: ${err}`);
+      toast.error(`Logout error: ${err}`);
     }
   };
 
