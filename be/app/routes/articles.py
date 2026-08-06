@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends
-from typing import Union, Optional
+from typing import Optional
 
 from app.db.connect import DBSessionDep
 from app.db.models.article import Article
@@ -63,7 +63,7 @@ def get_article_by_id(
 
 @router.get(
     "/slug/{slug}",
-    response_model=Union[PublicArticle, Article],
+    response_model=PublicArticle,
 )
 def get_article_by_slug(
     slug: TSlug,

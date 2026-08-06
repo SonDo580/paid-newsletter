@@ -1,6 +1,6 @@
 from sqlmodel import Session as DBSession, select, or_, func
 from fastapi import HTTPException, status
-from typing import Union, Optional
+from typing import Optional
 import base64
 
 from app.db.models.article import Article
@@ -83,7 +83,7 @@ class ArticlesService:
     @staticmethod
     def get_by_slug(
         db_session: DBSession, slug: str, user: Optional[CurrentUser]
-    ) -> Union[Article, PublicArticle]:
+    ) -> PublicArticle:
         """Find article by slug.
         Paywall is applied to readers and anonymous guests."""
         article = db_session.exec(select(Article).where(Article.slug == slug)).first()
@@ -94,7 +94,9 @@ class ArticlesService:
 
         # Bypass checks for admin
         if user and user.is_admin:
-            return article
+            return PublicArticle(
+                **article.model_dump(), access_status=AccessStatus.FULL
+            )
 
         # Check for specific one-off purchase
         reader = user.reader if user else None
