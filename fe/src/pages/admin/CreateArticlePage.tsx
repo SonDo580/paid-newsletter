@@ -6,7 +6,7 @@ import { PATHS } from "~/utils/paths";
 import { useCreateArticleMutation } from "~/api/articles.hooks";
 import { getApiErrMsg } from "~/api/apiError";
 
-export default function CreateArticle() {
+export default function CreateArticlePage() {
   const navigate = useNavigate();
   const [createArticleErrMsg, setCreateArticleErrMsg] = useState<string>("");
   const { mutateAsync: createArticle, isPending: createArticlePending } =

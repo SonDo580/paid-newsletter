@@ -8,7 +8,7 @@ import { Field, FieldError, FieldGroup } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
 import { loginSchema, type LoginFormValues } from "~/schemas/auth";
 
-export default function Login() {
+export default function LoginPage() {
   const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
   const [loginErrMsg, setLoginErrMsg] = useState<string>("");
   const { mutateAsync: login, isPending: loginPending } = useLoginMutation();

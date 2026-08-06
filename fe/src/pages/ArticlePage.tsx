@@ -31,7 +31,7 @@ function ArticleDetails({ article }: ArticleDetailsProps) {
   );
 }
 
-export default function Article() {
+export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
   const { data: article, isLoading, error } = usePublicArticleBySlugQuery(slug);
 

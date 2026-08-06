@@ -25,7 +25,7 @@ const DEFAULT_PARAMS: ArticlesListForAdminParams = {
   sort_order: "desc",
 };
 
-export default function AdminArticles() {
+export default function AdminArticlesPage() {
   const [params, setParams] =
     useState<ArticlesListForAdminParams>(DEFAULT_PARAMS);
 

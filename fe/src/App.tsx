@@ -1,14 +1,14 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Article from "./pages/Article";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import ArticlePage from "./pages/ArticlePage";
 import AdminLayout from "./layouts/AdminLayout";
-import AdminArticles from "./pages/admin/AdminArticles";
-import NotFound from "./pages/NotFound";
+import AdminArticlesPage from "./pages/admin/AdminArticlesPage";
+import NotFoundPage from "./pages/NotFoundPage";
 import { PATHS } from "~/utils/paths";
-import CreateArticle from "./pages/admin/CreateArticle";
-import EditArticle from "./pages/admin/EditArticle";
+import CreateArticlePage from "./pages/admin/CreateArticlePage";
+import EditArticlePage from "./pages/admin/EditArticlePage";
 import RootLayout from "./layouts/RootLayout";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -22,9 +22,9 @@ function App() {
         <Routes>
           <Route element={<RootLayout />}>
             {/* Public */}
-            <Route path={PATHS.HOME} element={<Home />} />
-            <Route path={PATHS.LOGIN} element={<Login />} />
-            <Route path="/articles/:slug" element={<Article />} />
+            <Route path={PATHS.HOME} element={<HomePage />} />
+            <Route path={PATHS.LOGIN} element={<LoginPage />} />
+            <Route path="/articles/:slug" element={<ArticlePage />} />
 
             {/* Admin */}
             <Route element={<ProtectedRoute requireAdmin />}>
@@ -33,14 +33,14 @@ function App() {
                   index
                   element={<Navigate to={PATHS.ADMIN.ARTICLES} replace />}
                 />
-                <Route path="articles" element={<AdminArticles />} />
-                <Route path="articles/create" element={<CreateArticle />} />
-                <Route path="articles/:id" element={<EditArticle />} />
+                <Route path="articles" element={<AdminArticlesPage />} />
+                <Route path="articles/create" element={<CreateArticlePage />} />
+                <Route path="articles/:id" element={<EditArticlePage />} />
               </Route>
             </Route>
 
             {/* Fallback */}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

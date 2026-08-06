@@ -22,7 +22,7 @@ function articleToFormValues(article: Article): ArticleFormValues {
   };
 }
 
-export default function EditArticle() {
+export default function EditArticlePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [updateArticleErrMsg, setUpdateArticleErrMsg] = useState<string>("");

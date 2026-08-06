@@ -4,7 +4,7 @@ import { QueryView } from "~/components/QueryView";
 import { Button } from "~/components/ui/button";
 import { PATHS } from "~/utils/paths";
 
-export default function Home() {
+export default function HomePage() {
   const {
     data,
     isLoading,
