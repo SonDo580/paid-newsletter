@@ -20,11 +20,7 @@ A self-hosted newsletter platform for independent publishers who want full contr
 
 ## Features
 
-0. **Admin creation & authentication**
-
-- Hard-code admin email (put in `.env`)
-
-1. **Reader authentication & profile**
+1. **Authentication & reader profile**
 
 - Password-less login via email.
 - Subscription status & bought articles.
@@ -33,19 +29,17 @@ A self-hosted newsletter platform for independent publishers who want full contr
 2. **Payment & pay wall**
 
 - PSP (`Stripe`) integration for checkout.
-- Check before rendering an article:
-  - free content -> OK
-  - paid content && user has active subscription -> OK
-  - paid content && user has bought this item -> OK
 - Paid content: show preview followed by call-to-action (CTA) to pay.
-- For admins: set subscription fee and article global price.
+- For admin: set subscription fee and article global price.
 
-3. **Content management system (CMS)**
+3. **Admin Panel**
 
-- Only for admin.
-- Optional: photos, reacts, comments.
+- Manage articles.
+- Manage readers (subscribers, one-time buyers).
 
 4. **Email Delivery**
 
-- Send published articles to subscribers.
-- Every email should have a `Read on website` link.
+- Send published articles to subscribers. Every email should have a `Read on website` link.
+- For admin:
+  - Email delivery statistics.
+  - Resend failed batches.
