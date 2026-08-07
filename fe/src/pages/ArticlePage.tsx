@@ -4,13 +4,30 @@ import { QueryView } from "~/components/QueryView";
 import { Button } from "~/components/ui/button";
 import { useAuth } from "~/contexts/AuthContext";
 import type { PublicArticle } from "~/schemas/articles";
+import type { CheckoutPageQuery, LoginPageQuery } from "~/schemas/page";
 import { PATHS } from "~/utils/paths";
+import { buildPath } from "~/utils/url";
 
-function CallToAction() {
+interface CallToActionProps {
+  articleId: number;
+  pastDueSubscription: boolean;
+}
+
+function CallToAction({ articleId, pastDueSubscription }: CallToActionProps) {
   const { user, authPending } = useAuth();
   const location = useLocation();
-  const currentPath = encodeURIComponent(location.pathname + location.search);
-  const loginPath = `${PATHS.LOGIN}?redirect=${currentPath}`;
+  const currentPath = location.pathname + location.search;
+
+  const loginPageQuery: LoginPageQuery = {
+    redirect: currentPath,
+  };
+  const loginPagePath = buildPath(PATHS.LOGIN, loginPageQuery);
+
+  const checkoutPageQuery: CheckoutPageQuery = {
+    articleId: articleId,
+    redirect: currentPath,
+  };
+  const checkoutPagePath = buildPath(PATHS.CHECKOUT, checkoutPageQuery);
 
   if (authPending) {
     return null;
@@ -18,14 +35,29 @@ function CallToAction() {
 
   if (!user) {
     return (
-      <Link to={loginPath}>
+      <Link to={loginPagePath}>
         <Button variant="default">Login to read more</Button>
       </Link>
     );
   }
 
+  if (pastDueSubscription) {
+    return (
+      <>
+        <p className="text-amber-700">
+          Your subscription payment failed. Update billing details to continue.
+        </p>
+        <Link to={PATHS.SETTINGS}>
+          <Button variant="default">Update billing info</Button>
+        </Link>
+      </>
+    );
+  }
+
   return (
-    <div>TODO: pending subscription payment OR need to purchase/subscribe</div>
+    <Link to={checkoutPagePath}>
+      <Button variant="default">Subscribe or purchase</Button>
+    </Link>
   );
 }
 
@@ -49,7 +81,15 @@ function ArticleDetails({ article }: ArticleDetailsProps) {
           {article.content}
         </div>
 
-        {article.access_status === "teaser" && <CallToAction />}
+        {article.access_status === "teaser" && (
+          <div className="flex flex-col items-center gap-2">
+            <h3 className="text-xl fold-bold">Continue reading</h3>
+            <CallToAction
+              articleId={article.id}
+              pastDueSubscription={article.past_due_subscription}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

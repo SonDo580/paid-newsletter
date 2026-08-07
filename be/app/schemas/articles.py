@@ -59,11 +59,13 @@ class AccessStatus(str, Enum):
 class PublicArticle(BaseModel):
     """Show to readers."""
 
+    id: int
     title: str
     slug: str
     content: str
     published_at: datetime
     access_status: AccessStatus
+    past_due_subscription: bool = False
 
 
 class ArticleSortBy(str, Enum):

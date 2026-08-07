@@ -1,18 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useSearchParams } from "react-router-dom";
 import { getApiErrMsg } from "~/api/apiError";
 import { useLoginMutation } from "~/api/auth.hooks";
 import { Button } from "~/components/ui/button";
 import { Field, FieldError, FieldGroup } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
+import { useCustomSearchParams } from "~/hooks/useCustomSearchParams";
 import { loginSchema, type LoginFormValues } from "~/schemas/auth";
+import { loginPageQuerySchema } from "~/schemas/page";
 
 export default function LoginPage() {
-  const [searchParams] = useSearchParams();
-  const redirectPath = searchParams.get("redirect") || undefined;
-
+  const { redirect: redirectPath } =
+    useCustomSearchParams(loginPageQuerySchema);
   const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
   const [loginErrMsg, setLoginErrMsg] = useState<string>("");
   const { mutateAsync: login, isPending: loginPending } = useLoginMutation();
