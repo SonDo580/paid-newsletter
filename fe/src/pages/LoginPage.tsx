@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useSearchParams } from "react-router-dom";
 import { getApiErrMsg } from "~/api/apiError";
 import { useLoginMutation } from "~/api/auth.hooks";
 import { Button } from "~/components/ui/button";
@@ -9,9 +10,13 @@ import { Input } from "~/components/ui/input";
 import { loginSchema, type LoginFormValues } from "~/schemas/auth";
 
 export default function LoginPage() {
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect") || undefined;
+
   const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
   const [loginErrMsg, setLoginErrMsg] = useState<string>("");
   const { mutateAsync: login, isPending: loginPending } = useLoginMutation();
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     mode: "onBlur",
@@ -23,7 +28,7 @@ export default function LoginPage() {
   const handleLogin = async (data: LoginFormValues) => {
     setLoginErrMsg("");
     try {
-      await login(data);
+      await login({ email: data.email, redirect_path: redirectPath });
       setLoginSuccess(true);
     } catch (err) {
       setLoginErrMsg(getApiErrMsg(err));

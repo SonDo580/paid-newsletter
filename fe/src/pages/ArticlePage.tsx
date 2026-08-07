@@ -1,7 +1,33 @@
-import { useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { usePublicArticleBySlugQuery } from "~/api/articles.hooks";
 import { QueryView } from "~/components/QueryView";
+import { Button } from "~/components/ui/button";
+import { useAuth } from "~/contexts/AuthContext";
 import type { PublicArticle } from "~/schemas/articles";
+import { PATHS } from "~/utils/paths";
+
+function CallToAction() {
+  const { user, authPending } = useAuth();
+  const location = useLocation();
+  const currentPath = encodeURIComponent(location.pathname + location.search);
+  const loginPath = `${PATHS.LOGIN}?redirect=${currentPath}`;
+
+  if (authPending) {
+    return null;
+  }
+
+  if (!user) {
+    return (
+      <Link to={loginPath}>
+        <Button variant="default">Login to read more</Button>
+      </Link>
+    );
+  }
+
+  return (
+    <div>TODO: pending subscription payment OR need to purchase/subscribe</div>
+  );
+}
 
 interface ArticleDetailsProps {
   article: PublicArticle;
@@ -23,9 +49,7 @@ function ArticleDetails({ article }: ArticleDetailsProps) {
           {article.content}
         </div>
 
-        {article.access_status == "teaser" && (
-          <div>TODO (login + subscribe or pay)</div>
-        )}
+        {article.access_status === "teaser" && <CallToAction />}
       </div>
     </div>
   );

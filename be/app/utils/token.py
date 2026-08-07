@@ -26,7 +26,9 @@ class TokenUtils:
     def generate_token(self, payload: TokenPayload) -> str:
         secret_key = self.secret_key_map[payload.type]
         return jwt.encode(
-            payload=payload.model_dump(), key=secret_key, algorithm=self.algorithm
+            payload=payload.model_dump(exclude_none=True),
+            key=secret_key,
+            algorithm=self.algorithm,
         )
 
     def verify_token(self, token: str, expected_type: TokenType) -> TokenPayload:

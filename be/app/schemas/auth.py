@@ -9,6 +9,7 @@ from app.db.models.reader import Reader
 
 class LoginReqBody(BaseModel):
     email: EmailStr
+    redirect_path: Optional[str] = None
 
 class TokenType(str, Enum):
     MAGIC = "magic"
@@ -19,6 +20,7 @@ class TokenPayload(BaseModel):
     sub: str = Field(description="email")
     exp: datetime
     type: TokenType
+    redirect_path: Optional[str] = None
 
 
 class CurrentUser(BaseModel):

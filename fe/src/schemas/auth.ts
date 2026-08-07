@@ -5,7 +5,11 @@ export const loginSchema = z.object({
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
-export type LoginReqBody = LoginFormValues;
+
+export interface LoginReqBody {
+  email: string;
+  redirect_path?: string;
+}
 
 export interface CurrentUser {
   email: string;
