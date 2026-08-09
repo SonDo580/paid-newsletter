@@ -64,3 +64,11 @@ def admin_required(user: CurrentUser = Depends(get_current_user)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
         )
+
+
+def get_current_reader(user: CurrentUser = Depends(get_current_user)) -> Reader:
+    if user.is_admin or not user.reader:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only for reader"
+        )
+    return user.reader

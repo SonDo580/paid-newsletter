@@ -5,8 +5,6 @@ import re
 from app.config.settings import settings
 from app.utils.url import api_url_builder
 
-resend.api_key = settings.RESEND_API_KEY
-
 jinja2_env = Environment(
     loader=PackageLoader("app", "templates/emails"),
     autoescape=select_autoescape(["html", "xml"]),
