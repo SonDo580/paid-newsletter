@@ -37,11 +37,13 @@ def decode_cursor(cursor: str) -> int:
 
 
 class ArticlesService:
-    @staticmethod
+    def __init__(self, db_session: DBSession):
+        self.db_session = db_session
+
     def create_article(
-        db_session: DBSession, data: ArticleCreateReqBody
+        self, data: ArticleCreateReqBody
     ) -> ArticleCreateResBody:
-        if not ArticlesService.is_slug_unique(db_session, data.slug):
+        if not self.is_slug_unique(data.slug):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Slug is already taken",
@@ -53,40 +55,37 @@ class ArticlesService:
                 article.published_at = datetime_utils.now_utc()
                 # TODO: email notification to subscribers
 
-            db_session.add(article)
-            db_session.commit()
-            db_session.refresh(article)
+            self.db_session.add(article)
+            self.db_session.commit()
+            self.db_session.refresh(article)
             return ArticleCreateResBody(id=article.id)
         except Exception:
-            db_session.rollback()
+            self.db_session.rollback()
             raise
             # Race condition: someone added the same slug between our check and commit
             # -> Don't handle since there's only 1 admin
 
-    @staticmethod
-    def is_slug_unique(db_session: DBSession, slug: str) -> bool:
+    def is_slug_unique(self, slug: str) -> bool:
         statement = select(Article.id).where(Article.slug == slug)
-        exists = db_session.exec(statement).first()
+        exists = self.db_session.exec(statement).first()
         return exists is None
 
-    @staticmethod
-    def get_by_id(db_session: DBSession, article_id: int) -> Article:
+    def get_by_id(self, article_id: int) -> Article:
         """Find article by ID - for admin."""
         statement = select(Article).where(Article.id == article_id)
-        article = db_session.exec(statement).first()
+        article = self.db_session.exec(statement).first()
         if not article:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
             )
         return article
 
-    @staticmethod
     def get_by_slug(
-        db_session: DBSession, slug: str, user: Optional[CurrentUser]
+        self, slug: str, user: Optional[CurrentUser]
     ) -> PublicArticle:
         """Find article by slug.
         Paywall is applied to readers and anonymous guests."""
-        article = db_session.exec(select(Article).where(Article.slug == slug)).first()
+        article = self.db_session.exec(select(Article).where(Article.slug == slug)).first()
         if not article:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Article not found"
@@ -102,7 +101,7 @@ class ArticlesService:
         reader = user.reader if user else None
         purchase = None
         if reader:
-            purchase = db_session.exec(
+            purchase = self.db_session.exec(
                 select(Entitlement).where(
                     Entitlement.reader_id == reader.id,
                     Entitlement.article_id == article.id,
@@ -141,11 +140,10 @@ class ArticlesService:
             access_status=AccessStatus.TEASER,
         )
 
-    @staticmethod
     def update_article(
-        db_session: DBSession, article_id: int, data: ArticleUpdateReqBody
+        self, article_id: int, data: ArticleUpdateReqBody
     ):
-        article = ArticlesService.get_by_id(db_session, article_id)
+        article = self.get_by_id(article_id)
         update_data = data.model_dump(exclude_none=True)
         if not update_data:
             return
@@ -167,14 +165,13 @@ class ArticlesService:
                 article.published_at = now
                 # TODO: email notification to subscribers
 
-            db_session.commit()
+            self.db_session.commit()
         except Exception:
-            db_session.rollback()
+            self.db_session.rollback()
             raise
 
-    @staticmethod
     def list_articles_for_admin(
-        db_session: DBSession, params: ArticlesListForAdminParams
+        self, params: ArticlesListForAdminParams
     ) -> ArticlesListForAdminResBody:
         # Build filter conditions
         conditions = []
@@ -211,14 +208,13 @@ class ArticlesService:
             .limit(params.page_size)
         )
 
-        total = db_session.exec(count_stmt).one()
-        articles = db_session.exec(data_stmt).all()
+        total = self.db_session.exec(count_stmt).one()
+        articles = self.db_session.exec(data_stmt).all()
         items = [ArticlesListItemForAdmin.model_validate(a) for a in articles]
         return ArticlesListForAdminResBody(items=items, total=total)
 
-    @staticmethod
     def list_articles_for_reader(
-        db_session: DBSession, params: ArticlesListForReaderParams
+        self, params: ArticlesListForReaderParams
     ) -> ArticlesListForReaderResBody:
         conditions = [Article.is_published == True]
         if params.cursor is not None:
@@ -232,7 +228,7 @@ class ArticlesService:
             .limit(params.limit + 1)  # +1 to check if there's more
         )
 
-        articles = db_session.exec(stmt).all()
+        articles = self.db_session.exec(stmt).all()
         has_more = len(articles) > params.limit
         articles = articles[: params.limit]
 

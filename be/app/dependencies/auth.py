@@ -24,10 +24,12 @@ def get_current_user(
     email = payload.sub
 
     # Find reader by email if user is reader
-    is_admin = AuthService.is_admin(email)
+    auth_service = AuthService(db_session) 
+    is_admin = auth_service.is_admin(email)
     reader: Optional[Reader] = None
     if not is_admin:
-        reader = ReadersService.get_by_email(db_session, email)
+        readers_service = ReadersService(db_session)
+        reader = readers_service.get_by_email(email)
         if not reader or not reader.verified_at:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -49,10 +51,12 @@ def get_optional_user(
     email = payload.sub
 
     # Find reader by email if user is reader
-    is_admin = AuthService.is_admin(email)
+    auth_service = AuthService(db_session) 
+    is_admin = auth_service.is_admin(email)
     reader: Optional[Reader] = None
     if not is_admin:
-        reader = ReadersService.get_by_email(db_session, email)
+        readers_service = ReadersService(db_session)
+        reader = readers_service.get_by_email(email)
         if not reader or not reader.verified_at:
             return None
 

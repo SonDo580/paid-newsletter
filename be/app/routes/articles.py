@@ -28,13 +28,15 @@ router = APIRouter(prefix="/articles", tags=["Articles"])
 def create_article(
     data: ArticleCreateReqBody, db_session: DBSessionDep, _=Depends(admin_required)
 ):
-    return ArticlesService.create_article(db_session, data)
+    articles_service = ArticlesService(db_session)
+    return articles_service.create_article(data)
 
 
 @router.get("/check-slug", response_model=CheckSlugResBody)
 def check_slug(slug: TSlug, db_session: DBSessionDep, _=Depends(admin_required)):
     """Checks if a slug is available."""
-    available = ArticlesService.is_slug_unique(db_session, slug)
+    articles_service = ArticlesService(db_session)
+    available = articles_service.is_slug_unique(slug)
     return CheckSlugResBody(available=available)
 
 
@@ -50,7 +52,8 @@ def update_article(
     - Toggle free/paid status.
     - Publish/unpublish. Trigger email sending for first-time publish.
     """
-    ArticlesService.update_article(db_session, article_id, data)
+    articles_service = ArticlesService(db_session)
+    articles_service.update_article(article_id, data)
 
 
 @router.get("/id/{article_id}", response_model=Article)
@@ -58,7 +61,8 @@ def get_article_by_id(
     article_id: int, db_session: DBSessionDep, _=Depends(admin_required)
 ):
     """Find article by ID - for admin."""
-    return ArticlesService.get_by_id(db_session, article_id)
+    articles_service = ArticlesService(db_session)
+    return articles_service.get_by_id(article_id)
 
 
 @router.get(
@@ -72,7 +76,8 @@ def get_article_by_slug(
 ):
     """Find article by slug.
     Paywall is applied to readers and anonymous guests."""
-    return ArticlesService.get_by_slug(db_session, slug, user)
+    articles_service = ArticlesService(db_session)
+    return articles_service.get_by_slug(slug, user)
 
 
 @router.get("/list/reader", response_model=ArticlesListForReaderResBody)
@@ -81,7 +86,8 @@ def list_articles_for_reader(
     params: ArticlesListForReaderParams = Depends(),
 ):
     """List articles for readers and anonymous guests."""
-    return ArticlesService.list_articles_for_reader(db_session, params)
+    articles_service = ArticlesService(db_session)
+    return articles_service.list_articles_for_reader(params)
 
 
 @router.get("/list/admin", response_model=ArticlesListForAdminResBody)
@@ -90,4 +96,5 @@ def list_articles_for_admin(
     params: ArticlesListForAdminParams = Depends(),
     _=Depends(admin_required),
 ):
-    return ArticlesService.list_articles_for_admin(db_session, params)
+    articles_service = ArticlesService(db_session)
+    return articles_service.list_articles_for_admin(params)

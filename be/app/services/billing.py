@@ -45,11 +45,10 @@ class BillingService:
             return None
 
         now = datetime_utils.now_utc()
-        active_subscription = self.db_session.exec(
+        return self.db_session.exec(
             select(Subscription).where(
                 Subscription.reader_id == reader.id,
                 Subscription.status == SubscriptionStatus.ACTIVE,
                 Subscription.current_period_end > now,
             )
         ).first()
-        return active_subscription

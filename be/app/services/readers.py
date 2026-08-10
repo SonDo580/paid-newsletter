@@ -8,29 +8,29 @@ from app.utils.datetime import datetime_utils
 
 
 class ReadersService:
-    @staticmethod
-    def get_by_email(db_session: DBSession, email: str) -> Optional[Reader]:
-        return db_session.exec(select(Reader).where(Reader.email == email)).first()
+    def __init__(self, db_session: DBSession):
+        self.db_session = db_session
 
-    @staticmethod
-    def get_by_email_or_create(db_session: DBSession, email: str) -> Reader:
-        reader = ReadersService.get_by_email(db_session, email)
+    def get_by_email(self, email: str) -> Optional[Reader]:
+        return self.db_session.exec(select(Reader).where(Reader.email == email)).first()
+
+    def get_by_email_or_create(self, email: str) -> Reader:
+        reader = self.get_by_email(email)
         if not reader:
             try:
                 reader = Reader(email=email)
-                db_session.add(reader)
-                db_session.commit()
-                db_session.refresh(reader)
+                self.db_session.add(reader)
+                self.db_session.commit()
+                self.db_session.refresh(reader)
             except IntegrityError:  # Handle race condition
-                db_session.rollback()
-                reader = db_session.exec(
+                self.db_session.rollback()
+                reader = self.db_session.exec(
                     select(Reader).where(Reader.email == email)
                 ).one()
         return reader
 
-    @staticmethod
-    def verify_reader(db_session: DBSession, email: str):
-        reader = ReadersService.get_by_email(db_session, email)
+    def verify_reader(self, email: str):
+        reader = self.get_by_email(email)
         if not reader:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Reader not found"
@@ -39,7 +39,7 @@ class ReadersService:
         if not reader.verified_at:
             try:
                 reader.verified_at = datetime_utils.now_utc()
-                db_session.commit()
+                self.db_session.commit()
             except Exception:
-                db_session.rollback()
+                self.db_session.rollback()
                 raise
