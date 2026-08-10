@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from pydantic import EmailStr
 from datetime import datetime
 from enum import Enum
@@ -9,7 +9,8 @@ from app.db.models.reader import Reader
 
 class LoginReqBody(BaseModel):
     email: EmailStr
-    redirect_path: Optional[str] = None
+    redirect_path: str = "/"
+
 
 class TokenType(str, Enum):
     MAGIC = "magic"
@@ -17,7 +18,7 @@ class TokenType(str, Enum):
 
 
 class TokenPayload(BaseModel):
-    sub: str = Field(description="email")
+    sub: str
     exp: datetime
     type: TokenType
     redirect_path: Optional[str] = None
