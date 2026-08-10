@@ -83,8 +83,7 @@ class ArticlesService:
     def get_by_slug(
         self, slug: str, user: Optional[CurrentUser]
     ) -> PublicArticle:
-        """Find article by slug.
-        Paywall is applied to readers and anonymous guests."""
+        """Find article by slug. Paywall is applied to readers and anonymous guests."""
         article = self.db_session.exec(select(Article).where(Article.slug == slug)).first()
         if not article:
             raise HTTPException(
