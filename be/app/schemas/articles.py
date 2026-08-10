@@ -63,7 +63,7 @@ class PublicArticle(BaseModel):
     title: str
     slug: str
     content: str
-    published_at: datetime
+    published_at: Optional[datetime]
     access_status: AccessStatus
     past_due_subscription: bool = False
 

@@ -1,14 +1,11 @@
 import stripe
-from sqlmodel import Session as DBSession, select
+from sqlmodel import Session as DBSession
 from fastapi import HTTPException, status
 from loguru import logger
-from typing import Optional
 
 from app.db.models.reader import Reader
-from app.db.models.subscription import Subscription, SubscriptionStatus
 from app.schemas.payments import CreatePortalSessionReqBody
 from app.utils.url import fe_url_builder
-from app.utils.datetime import datetime_utils
 
 
 class BillingService:
@@ -39,16 +36,3 @@ class BillingService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to create billing portal session",
             )
-
-    def get_active_subscription(self, reader: Reader) -> Optional[Subscription]:
-        if not reader.stripe_customer_id:
-            return None
-
-        now = datetime_utils.now_utc()
-        return self.db_session.exec(
-            select(Subscription).where(
-                Subscription.reader_id == reader.id,
-                Subscription.status == SubscriptionStatus.ACTIVE,
-                Subscription.current_period_end > now,
-            )
-        ).first()

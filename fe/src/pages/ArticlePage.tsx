@@ -45,10 +45,10 @@ function CallToAction({ articleId, pastDueSubscription }: CallToActionProps) {
     return (
       <>
         <p className="text-amber-700">
-          Your subscription payment failed. Update billing details to continue.
+          Your subscription is past due.
         </p>
         <Link to={PATHS.SETTINGS}>
-          <Button variant="default">Update billing info</Button>
+          <Button variant="default">Manage billing</Button>
         </Link>
       </>
     );
@@ -74,7 +74,9 @@ function ArticleDetails({ article }: ArticleDetailsProps) {
         </h1>
 
         <p className="mb-6 text-sm text-gray-500">
-          Published on {new Date(article.published_at).toLocaleDateString()}
+          {article.published_at
+            ? `Published on ${new Date(article.published_at).toLocaleDateString()}`
+            : "Draft / Retired"}
         </p>
 
         <div className="mb-6 prose text-gray-800 leading-relaxed">

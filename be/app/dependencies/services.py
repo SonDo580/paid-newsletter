@@ -9,6 +9,7 @@ from app.services.checkout import CheckoutService
 from app.services.mail import MailService
 from app.services.readers import ReadersService
 from app.services.stripe_webhook import StripeWebhookService
+from app.services.subscriptions import SubscriptionsService
 
 
 def get_articles_service(db_session: DBSessionDep) -> ArticlesService:
@@ -39,6 +40,10 @@ def get_stripe_webhook_service(db_session: DBSessionDep) -> StripeWebhookService
     return StripeWebhookService(db_session)
 
 
+def get_subscriptions_service(db_session: DBSessionDep) -> SubscriptionsService:
+    return SubscriptionsService(db_session)
+
+
 ArticlesServiceDep = Annotated[ArticlesService, Depends(get_articles_service)]
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
 BillingServiceDep = Annotated[BillingService, Depends(get_billing_service)]
@@ -47,4 +52,7 @@ MailServiceDep = Annotated[MailService, Depends(get_mail_service)]
 ReadersServiceDep = Annotated[ReadersService, Depends(get_readers_service)]
 StripeWebhookServiceDep = Annotated[
     StripeWebhookService, Depends(get_stripe_webhook_service)
+]
+SubscriptionsServiceDep = Annotated[
+    SubscriptionsService, Depends(get_subscriptions_service)
 ]
