@@ -7,9 +7,12 @@ from app.schemas.payments import (
     PurchaseCheckoutReqBody,
     SubscriptionCheckoutReqBody,
     CheckoutResBody,
+    CreatePortalSessionReqBody,
+    CreatePortalSessionResBody,
 )
 from app.services.checkout import CheckoutService
 from app.services.stripe_webhook import StripeWebhookService
+from app.services.billing import BillingService
 
 router = APIRouter(tags=["Payments"])
 
@@ -36,12 +39,15 @@ def subscribe(
     return CheckoutResBody(checkout_url=checkout_url)
 
 
-@router.delete("/subscriptions")
-def unsubscribe(
+@router.post("/billing/portal", response_model=CreatePortalSessionResBody)
+def create_portal_session(
     db_session: DBSessionDep,
+    payload: CreatePortalSessionReqBody,
     reader: Reader = Depends(get_current_reader),
 ):
-    pass
+    billing_service = BillingService(db_session)
+    portal_url = billing_service.create_portal_session(reader, payload)
+    return CreatePortalSessionResBody(portal_url=portal_url)
 
 
 @router.post("/webhooks/stripe")
