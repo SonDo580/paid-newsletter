@@ -5,7 +5,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   type Article,
@@ -43,8 +43,23 @@ export function useArticleByIdQuery(id?: string) {
 
 export function usePublicArticleBySlugQuery(
   slug?: string,
-  checkoutSuccess?: boolean,
+  returnedFromBilling?: boolean,
 ) {
+  const [, setSearchParams] = useSearchParams();
+  const [isTimedOut, setIsTimedOut] = useState(false);
+  const shouldSync = returnedFromBilling && !isTimedOut;
+
+  // stop polling after 10 seconds if backend hasn't updated
+  useEffect(() => {
+    if (shouldSync) {
+      const timer = setTimeout(() => {
+        setIsTimedOut(true);
+      }, 10000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [shouldSync]);
+
   const query = useQuery<PublicArticle, ApiError>({
     queryKey: articleKeys.detail(slug),
     queryFn: () => getPublicArticleBySlug(slug),
@@ -52,29 +67,29 @@ export function usePublicArticleBySlugQuery(
     refetchInterval: (queryState) => {
       const article = queryState.state.data;
       const isLocked = Boolean(article && article.access_status === "teaser");
-      if (checkoutSuccess && isLocked) {
+      if (shouldSync && isLocked) {
         return 1500; // poll every 1.5 seconds
       }
       return false; // stop polling
     },
   });
 
-  // (optional) remove `checkoutSuccess` search param
-  const [, setSearchParams] = useSearchParams();
   const article = query.data;
   const unlocked = Boolean(article && article.access_status !== "teaser");
+
+  // (optional) remove `returnedFromBilling` search param when unlocked or timed out
   useEffect(() => {
-    if (checkoutSuccess && unlocked) {
+    if ((shouldSync && unlocked) || isTimedOut) {
       setSearchParams(
         (prevParams) => {
           const newParams = new URLSearchParams(prevParams);
-          newParams.delete("checkoutSuccess");
+          newParams.delete("returnedFromBilling");
           return newParams;
         },
         { replace: true },
       );
     }
-  }, [checkoutSuccess, unlocked, setSearchParams]);
+  }, [shouldSync, unlocked, isTimedOut, setSearchParams]);
 
   return query;
 }

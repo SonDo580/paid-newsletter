@@ -9,7 +9,6 @@ import AdminArticlesPage from "./pages/admin/AdminArticlesPage";
 import CreateArticlePage from "./pages/admin/CreateArticlePage";
 import EditArticlePage from "./pages/admin/EditArticlePage";
 import ArticlePage from "./pages/ArticlePage";
-import CheckoutPage from "./pages/CheckoutPage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
@@ -27,7 +26,6 @@ function App() {
             <Route path={PATHS.HOME} element={<HomePage />} />
             <Route path={PATHS.LOGIN} element={<LoginPage />} />
             <Route path="/articles/:slug" element={<ArticlePage />} />
-            <Route path={PATHS.CHECKOUT} element={<CheckoutPage />} />
             <Route path={PATHS.SETTINGS} element={<SettingsPage />} />
 
             {/* Admin */}

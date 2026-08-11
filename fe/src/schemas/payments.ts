@@ -10,3 +10,11 @@ export interface SubscriptionCheckoutReqBody {
 export interface CheckoutResBody {
   checkout_url: string;
 }
+
+export interface CreateBillingPortalSessionReqBody {
+  redirect_path?: string;
+}
+
+export interface CreateBillingPortalSessionResBody {
+  portal_url: string;
+}

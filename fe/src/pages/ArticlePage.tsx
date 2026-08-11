@@ -2,6 +2,7 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { usePublicArticleBySlugQuery } from "~/api/articles.hooks";
 import {
+  useCreateBillingPortalSessionMutation,
   usePurchaseCheckoutMutation,
   useSubscriptionCheckoutMutation,
 } from "~/api/payments.hooks";
@@ -30,6 +31,7 @@ function CallToAction({ articleId, pastDueSubscription }: CallToActionProps) {
   const currentPath = location.pathname + location.search;
   const purchaseCheckoutMutation = usePurchaseCheckoutMutation();
   const subscriptionCheckoutMutation = useSubscriptionCheckoutMutation();
+  const billingPortalSessionMutation = useCreateBillingPortalSessionMutation();
 
   if (authPending) {
     return null;
@@ -49,12 +51,32 @@ function CallToAction({ articleId, pastDueSubscription }: CallToActionProps) {
   }
 
   if (pastDueSubscription) {
+    const isPending = billingPortalSessionMutation.isPending;
+    const articlePageQuery: ArticlePageQuery = {
+      returnedFromBilling: true,
+    };
+    const redirectPath = buildPath(currentPath, articlePageQuery);
+
+    const handleManageBilling = async () => {
+      try {
+        await billingPortalSessionMutation.mutateAsync({
+          redirect_path: redirectPath,
+        });
+      } catch (err) {
+        toast.error(`Error creating billing portal session: ${err}`);
+      }
+    };
+
     return (
       <>
         <p className="text-amber-700">Your subscription is past due.</p>
-        <Link to={PATHS.SETTINGS}>
-          <Button variant="default">Manage billing</Button>
-        </Link>
+        <Button
+          variant="default"
+          disabled={isPending}
+          onClick={handleManageBilling}
+        >
+          {isPending ? <Spinner /> : "Manage billing"}
+        </Button>
       </>
     );
   }
@@ -64,7 +86,7 @@ function CallToAction({ articleId, pastDueSubscription }: CallToActionProps) {
     subscriptionCheckoutMutation.isPending;
 
   const articlePageQuery: ArticlePageQuery = {
-    checkoutSuccess: true,
+    returnedFromBilling: true,
   };
   const redirectPath = buildPath(currentPath, articlePageQuery);
 
@@ -140,12 +162,12 @@ function ArticleDetails({ article }: ArticleDetailsProps) {
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const { checkoutSuccess } = useCustomSearchParams(articlePageQuerySchema);
+  const { returnedFromBilling } = useCustomSearchParams(articlePageQuerySchema);
   const {
     data: article,
     isLoading,
     error,
-  } = usePublicArticleBySlugQuery(slug, checkoutSuccess);
+  } = usePublicArticleBySlugQuery(slug, returnedFromBilling);
 
   return (
     <QueryView

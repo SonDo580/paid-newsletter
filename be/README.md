@@ -71,8 +71,15 @@ stripe events resend <event_id>
 - Details: https://docs.stripe.com/testing
 - Example test cards:
 
-```
+```bash
 4242424242424242
 5555555555554444
 ...
+
+# Refusal
+4000000000000002
+...
+
+# Refusal after attachment (test past due)
+4000000000000341
 ```

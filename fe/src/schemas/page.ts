@@ -6,6 +6,6 @@ export const loginPageQuerySchema = z.object({
 export type LoginPageQuery = z.infer<typeof loginPageQuerySchema>;
 
 export const articlePageQuerySchema = z.object({
-  checkoutSuccess: z.coerce.boolean().optional(),
+  returnedFromBilling: z.coerce.boolean().optional(),
 });
 export type ArticlePageQuery = z.infer<typeof articlePageQuerySchema>;

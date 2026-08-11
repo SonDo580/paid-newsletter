@@ -1,5 +1,7 @@
 import type {
   CheckoutResBody,
+  CreateBillingPortalSessionReqBody,
+  CreateBillingPortalSessionResBody,
   PurchaseCheckoutReqBody,
   SubscriptionCheckoutReqBody,
 } from "~/schemas/payments";
@@ -22,3 +24,14 @@ export async function subscriptionCheckout(
     body: payload,
   });
 }
+
+
+export async function createBillingPortalSession(
+  payload: CreateBillingPortalSessionReqBody,
+): Promise<CreateBillingPortalSessionResBody> {
+  return apiClient<CreateBillingPortalSessionResBody>("/billing/portal", {
+    method: "POST",
+    body: payload,
+  });
+}
+
