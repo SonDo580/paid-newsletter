@@ -6,12 +6,17 @@ import { useLoginMutation } from "~/api/auth.hooks";
 import { Button } from "~/components/ui/button";
 import { Field, FieldError, FieldGroup } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
+import { useCustomSearchParams } from "~/hooks/useCustomSearchParams";
 import { loginSchema, type LoginFormValues } from "~/schemas/auth";
+import { loginPageQuerySchema } from "~/schemas/page";
 
 export default function LoginPage() {
+  const { redirect: redirectPath } =
+    useCustomSearchParams(loginPageQuerySchema);
   const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
   const [loginErrMsg, setLoginErrMsg] = useState<string>("");
   const { mutateAsync: login, isPending: loginPending } = useLoginMutation();
+
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     mode: "onBlur",
@@ -23,7 +28,7 @@ export default function LoginPage() {
   const handleLogin = async (data: LoginFormValues) => {
     setLoginErrMsg("");
     try {
-      await login(data);
+      await login({ email: data.email, redirect_path: redirectPath });
       setLoginSuccess(true);
     } catch (err) {
       setLoginErrMsg(getApiErrMsg(err));

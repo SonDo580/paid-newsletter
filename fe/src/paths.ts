@@ -2,6 +2,7 @@ export const PATHS = {
   HOME: "/",
   LOGIN: "/login",
   ARTICLE: (slug: string) => `/articles/${slug}`,
+  ACCOUNT: "/account",
   ADMIN: {
     ROOT: "/admin",
     ARTICLES: "/admin/articles",

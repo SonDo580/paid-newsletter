@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "~/contexts/AuthContext";
 import NotFoundPage from "~/pages/NotFoundPage";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 
 interface ProtectedRouteProps {
   requireAdmin?: boolean;

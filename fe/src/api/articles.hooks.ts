@@ -5,6 +5,8 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   type Article,
   type ArticlesListForAdminParams,
@@ -35,16 +37,61 @@ export function useArticleByIdQuery(id?: string) {
   return useQuery<Article, ApiError>({
     queryKey: articleKeys.detail(id),
     queryFn: () => getArticleById(id),
-    enabled: !!id,
+    enabled: Boolean(id),
   });
 }
 
-export function usePublicArticleBySlugQuery(slug?: string) {
-  return useQuery<PublicArticle, ApiError>({
+export function usePublicArticleBySlugQuery(
+  slug?: string,
+  returnedFromBilling?: boolean,
+) {
+  const [, setSearchParams] = useSearchParams();
+  const [isTimedOut, setIsTimedOut] = useState(false);
+  const shouldSync = returnedFromBilling && !isTimedOut;
+
+  // stop polling after 10 seconds if backend hasn't updated
+  useEffect(() => {
+    if (shouldSync) {
+      const timer = setTimeout(() => {
+        setIsTimedOut(true);
+      }, 10000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [shouldSync]);
+
+  const query = useQuery<PublicArticle, ApiError>({
     queryKey: articleKeys.detail(slug),
     queryFn: () => getPublicArticleBySlug(slug),
-    enabled: !!slug,
+    enabled: Boolean(slug),
+    refetchInterval: (queryState) => {
+      const article = queryState.state.data;
+      const isLocked = Boolean(article && article.access_status === "teaser");
+      if (shouldSync && isLocked) {
+        return 1500; // poll every 1.5 seconds
+      }
+      return false; // stop polling
+    },
   });
+
+  const article = query.data;
+  const unlocked = Boolean(article && article.access_status !== "teaser");
+
+  // (optional) remove `returnedFromBilling` search param when unlocked or timed out
+  useEffect(() => {
+    if ((shouldSync && unlocked) || isTimedOut) {
+      setSearchParams(
+        (prevParams) => {
+          const newParams = new URLSearchParams(prevParams);
+          newParams.delete("returnedFromBilling");
+          return newParams;
+        },
+        { replace: true },
+      );
+    }
+  }, [shouldSync, unlocked, isTimedOut, setSearchParams]);
+
+  return query;
 }
 
 export function usePublicArticlesInfiniteQuery(limit: number = 10) {

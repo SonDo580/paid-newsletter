@@ -5,7 +5,7 @@ import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { useAuth } from "~/contexts/AuthContext";
 import { cn } from "~/lib/utils";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 
 function Header() {
   const getNavItemCls = ({ isActive }: { isActive: boolean }) =>
@@ -44,6 +44,11 @@ function Header() {
           {!authPending && !user && (
             <NavLink to={PATHS.LOGIN} className={getNavItemCls}>
               Login
+            </NavLink>
+          )}
+          {!authPending && user && (
+            <NavLink to={PATHS.ACCOUNT} className={getNavItemCls}>
+              Account
             </NavLink>
           )}
         </nav>

@@ -50,7 +50,7 @@ export interface Article {
   is_published: boolean;
   created_at: string;
   updated_at: string;
-  published_at?: string | null;
+  published_at: string | null;
 }
 
 export type ArticlesListForReaderParams = {
@@ -72,11 +72,13 @@ export interface ArticlesListForReaderResBody {
 type AccessStatus = "full" | "teaser";
 
 export interface PublicArticle {
+  id: number;
   title: string;
   slug: string;
   content: string;
-  published_at: string; // ISO datetime string
+  published_at: string | null;
   access_status: AccessStatus;
+  past_due_subscription: boolean;
 }
 
 export type ArticleSortBy =

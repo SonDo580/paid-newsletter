@@ -1,12 +1,14 @@
 from datetime import datetime, timezone
 
-
 UTC_TZ = timezone.utc
 
 
 class DateTimeUtils:
     def now_utc(self) -> datetime:
         return datetime.now(tz=UTC_TZ)
+
+    def utc_from_timestamp(self, timestamp: float) -> datetime:
+        return datetime.fromtimestamp(timestamp, tz=UTC_TZ)
 
     def to_utc(self, dt: datetime) -> datetime:
         """Convert tz-aware datetime to UTC."""

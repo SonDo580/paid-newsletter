@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 
 export default function AdminLayout() {
   const getNavItemCls = ({ isActive }: { isActive: boolean }) => `

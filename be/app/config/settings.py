@@ -35,8 +35,12 @@ class Settings(BaseSettings):
 
     # Fee settings
     CURRENCY: str = "usd"
-    SUBSCRIPTION_FEE: float = 5.0
-    ARTICLE_FEE: float = 1.0
+    ARTICLE_FEE_CENTS: int = 100
+
+    # Stripe
+    STRIPE_SECRET_KEY: str    
+    STRIPE_WEBHOOK_SECRET: str
+    STRIPE_SUBSCRIPTION_PRICE_ID: str
 
 
 settings = Settings()

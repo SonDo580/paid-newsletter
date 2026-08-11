@@ -19,3 +19,4 @@ class UrlBuilder:
 
 
 api_url_builder = UrlBuilder(base_url=settings.API_URL)
+fe_url_builder = UrlBuilder(base_url=settings.FRONTEND_URL)

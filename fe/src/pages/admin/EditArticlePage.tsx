@@ -9,7 +9,7 @@ import {
 import { QueryView } from "~/components/QueryView";
 import type { Article, ArticleFormValues } from "~/schemas/articles";
 import { getDirtyValues } from "~/utils/form";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 import ArticleForm from "./ArticleForm";
 
 function articleToFormValues(article: Article): ArticleFormValues {

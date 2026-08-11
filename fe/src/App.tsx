@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster } from "sonner";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import AdminLayout from "./layouts/AdminLayout";
@@ -12,6 +12,7 @@ import ArticlePage from "./pages/ArticlePage";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import NotFoundPage from "./pages/NotFoundPage";
+import AccountPage from "./pages/AccountPage";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Route path={PATHS.HOME} element={<HomePage />} />
             <Route path={PATHS.LOGIN} element={<LoginPage />} />
             <Route path="/articles/:slug" element={<ArticlePage />} />
+            <Route path={PATHS.ACCOUNT} element={<AccountPage />} />
 
             {/* Admin */}
             <Route element={<ProtectedRoute requireAdmin />}>

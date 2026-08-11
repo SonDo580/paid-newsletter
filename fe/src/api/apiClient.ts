@@ -1,42 +1,19 @@
 import type { QueryParams } from "~/schemas/shared";
+import { buildUrl } from "~/utils/url";
 import { ApiError } from "./apiError";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL.replace(/\/+$/, "");
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface FetchOptions extends RequestInit {
   body?: any;
   params?: QueryParams;
 }
 
-function buildUrl(endpoint: string, params?: QueryParams): string {
-  const url = new URL(`${BASE_URL}/${endpoint.replace(/^\/+/, "")}`);
-
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value === undefined || value === null) {
-        return;
-      }
-
-      if (Array.isArray(value)) {
-        value.forEach((item) => {
-          if (item !== undefined && item !== null) {
-            url.searchParams.append(key, String(item));
-          }
-        });
-      } else {
-        url.searchParams.append(key, String(value));
-      }
-    });
-  }
-
-  return url.toString();
-}
-
 export async function apiClient<T>(
   endpoint: string,
   { body, params, headers, ...extraConfig }: FetchOptions = {},
 ): Promise<T> {
-  const url = buildUrl(endpoint, params);
+  const url = buildUrl(API_BASE_URL, endpoint, params);
   const config: RequestInit = {
     credentials: "include",
     headers: {

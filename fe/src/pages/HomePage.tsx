@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { usePublicArticlesInfiniteQuery } from "~/api/articles.hooks";
 import { QueryView } from "~/components/QueryView";
 import { Button } from "~/components/ui/button";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 
 export default function HomePage() {
   const {

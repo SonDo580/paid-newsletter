@@ -1,18 +1,17 @@
 from fastapi import Request, HTTPException, status, Depends
-from typing import Optional
+from typing import Optional, Annotated
 
 from app.common.constants import CookieKey
-from app.db.connect import DBSessionDep
 from app.db.models.reader import Reader
 from app.schemas.auth import CurrentUser, TokenType
-from app.services.auth import AuthService
-from app.services.readers import ReadersService
 from app.utils.token import token_utils
+from app.dependencies.services import AuthServiceDep, ReadersServiceDep
 
 
 def get_current_user(
     request: Request,
-    db_session: DBSessionDep,
+    auth_service: AuthServiceDep,
+    readers_service: ReadersServiceDep,
 ) -> CurrentUser:
     # Verify access token and extract email
     token = request.cookies.get(CookieKey.ACCESS_TOKEN)
@@ -24,10 +23,10 @@ def get_current_user(
     email = payload.sub
 
     # Find reader by email if user is reader
-    is_admin = AuthService.is_admin(email)
+    is_admin = auth_service.is_admin(email)
     reader: Optional[Reader] = None
     if not is_admin:
-        reader = ReadersService.get_by_email(db_session, email)
+        reader = readers_service.get_by_email(email)
         if not reader or not reader.verified_at:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -39,7 +38,8 @@ def get_current_user(
 
 def get_optional_user(
     request: Request,
-    db_session: DBSessionDep,
+    auth_service: AuthServiceDep,
+    readers_service: ReadersServiceDep,
 ) -> Optional[CurrentUser]:
     # Verify access token and extract email for authorized user
     token = request.cookies.get(CookieKey.ACCESS_TOKEN)
@@ -49,10 +49,10 @@ def get_optional_user(
     email = payload.sub
 
     # Find reader by email if user is reader
-    is_admin = AuthService.is_admin(email)
+    is_admin = auth_service.is_admin(email)
     reader: Optional[Reader] = None
     if not is_admin:
-        reader = ReadersService.get_by_email(db_session, email)
+        reader = readers_service.get_by_email(email)
         if not reader or not reader.verified_at:
             return None
 
@@ -64,3 +64,16 @@ def admin_required(user: CurrentUser = Depends(get_current_user)):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required"
         )
+
+
+def get_current_reader(user: CurrentUser = Depends(get_current_user)) -> Reader:
+    if user.is_admin or not user.reader:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only for reader"
+        )
+    return user.reader
+
+CurrentUserDep = Annotated[CurrentUser, Depends(get_current_user)]
+OptionalUserDep = Annotated[Optional[CurrentUser], Depends(get_optional_user)]
+CurrentReaderDep = Annotated[Reader, Depends(get_current_reader)]
+AdminRequiredDep = Annotated[None, Depends(admin_required)]
