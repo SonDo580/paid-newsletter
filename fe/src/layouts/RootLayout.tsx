@@ -46,6 +46,11 @@ function Header() {
               Login
             </NavLink>
           )}
+          {!authPending && user && (
+            <NavLink to={PATHS.ACCOUNT} className={getNavItemCls}>
+              Account
+            </NavLink>
+          )}
         </nav>
 
         {user && (
