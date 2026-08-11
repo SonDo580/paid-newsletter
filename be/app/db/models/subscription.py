@@ -2,6 +2,7 @@ from sqlmodel import Field, Column
 from typing import Optional
 from enum import Enum
 from datetime import datetime
+from sqlalchemy import Enum as SQLEnum
 
 from app.db.models.shared import StrictModel, UTCDateTime
 from app.utils.datetime import datetime_utils
@@ -28,7 +29,10 @@ class Subscription(StrictModel, table=True):
 
     stripe_subscription_id: str = Field(unique=True)
     stripe_price_id: str
-    status: SubscriptionStatus = Field(description="Stripe subscription status")
+    status: SubscriptionStatus = Field(
+        description="Stripe subscription status",
+        sa_column=Column(SQLEnum(SubscriptionStatus, native_enum=False)),
+    )
 
     current_period_start: datetime = Field(
         sa_column=Column(UTCDateTime, nullable=False)

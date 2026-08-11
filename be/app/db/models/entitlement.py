@@ -2,6 +2,7 @@ from sqlmodel import Field, Column, UniqueConstraint
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from sqlalchemy import Enum as SQLEnum
 
 from app.db.models.shared import StrictModel, UTCDateTime
 from app.utils.datetime import datetime_utils
@@ -18,7 +19,9 @@ class Entitlement(StrictModel, table=True):
     reader_id: int = Field(foreign_key="readers.id")
     article_id: int = Field(foreign_key="articles.id")
 
-    source: EntitlementSource
+    source: EntitlementSource = Field(
+        sa_column=Column(SQLEnum(EntitlementSource, native_enum=False)),
+    )
     payment_id: Optional[int] = Field(default=None, foreign_key="payments.id")
 
     granted_at: datetime = Field(
