@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getApiErrMsg } from "~/api/apiError";
 import { useCreateArticleMutation } from "~/api/articles.hooks";
 import type { ArticleFormValues } from "~/schemas/articles";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 import ArticleForm from "./ArticleForm";
 
 export default function CreateArticlePage() {

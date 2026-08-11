@@ -17,7 +17,7 @@ import {
   type ArticlePageQuery,
   type LoginPageQuery,
 } from "~/schemas/page";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 import { buildPath } from "~/utils/url";
 
 interface CallToActionProps {

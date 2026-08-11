@@ -13,7 +13,7 @@ import type {
   ArticleSortBy,
 } from "~/schemas/articles";
 import type { SortOrder } from "~/schemas/shared";
-import { PATHS } from "~/utils/paths";
+import { PATHS } from "~/paths";
 
 const DEFAULT_PARAMS: ArticlesListForAdminParams = {
   page: 1,
