@@ -5,6 +5,8 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   type Article,
   type ArticlesListForAdminParams,
@@ -35,16 +37,46 @@ export function useArticleByIdQuery(id?: string) {
   return useQuery<Article, ApiError>({
     queryKey: articleKeys.detail(id),
     queryFn: () => getArticleById(id),
-    enabled: !!id,
+    enabled: Boolean(id),
   });
 }
 
-export function usePublicArticleBySlugQuery(slug?: string) {
-  return useQuery<PublicArticle, ApiError>({
+export function usePublicArticleBySlugQuery(
+  slug?: string,
+  checkoutSuccess?: boolean,
+) {
+  const query = useQuery<PublicArticle, ApiError>({
     queryKey: articleKeys.detail(slug),
     queryFn: () => getPublicArticleBySlug(slug),
-    enabled: !!slug,
+    enabled: Boolean(slug),
+    refetchInterval: (queryState) => {
+      const article = queryState.state.data;
+      const isLocked = Boolean(article && article.access_status === "teaser");
+      if (checkoutSuccess && isLocked) {
+        return 1500; // poll every 1.5 seconds
+      }
+      return false; // stop polling
+    },
   });
+
+  // (optional) remove `checkoutSuccess` search param
+  const [, setSearchParams] = useSearchParams();
+  const article = query.data;
+  const unlocked = Boolean(article && article.access_status !== "teaser");
+  useEffect(() => {
+    if (checkoutSuccess && unlocked) {
+      setSearchParams(
+        (prevParams) => {
+          const newParams = new URLSearchParams(prevParams);
+          newParams.delete("checkoutSuccess");
+          return newParams;
+        },
+        { replace: true },
+      );
+    }
+  }, [checkoutSuccess, unlocked, setSearchParams]);
+
+  return query;
 }
 
 export function usePublicArticlesInfiniteQuery(limit: number = 10) {

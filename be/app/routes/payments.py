@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Body
+from typing import Any
 
 from app.schemas.payments import (
     PurchaseCheckoutReqBody,
@@ -49,7 +50,9 @@ def create_portal_session(
 
 @router.post("/webhooks/stripe")
 async def stripe_webhook(
-    request: Request, stripe_webhook_service: StripeWebhookServiceDep
+    request: Request,
+    stripe_webhook_service: StripeWebhookServiceDep,
+    _: dict[str, Any] = Body(...),
 ):
     event = await stripe_webhook_service.verify_request(request)
     stripe_webhook_service.handle_event(event)

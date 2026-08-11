@@ -30,6 +30,13 @@ uv run alembic upgrade head
 uv run alembic downgrade -1
 ```
 
+## Run module
+
+```bash
+# Example
+uv run -m app.scripts.seed
+```
+
 ## Receive Stripe events on `localhost`
 
 - Method 1: USe `Stripe CLI`
@@ -46,11 +53,26 @@ make stripe-dev
 # (Optional) Only forward needed events
 stripe listen --events <comma-separated list> --forward-to <webhook url>
 
-# Send an event: `stripe trigger <event_type>`
+# Send an event:
+stripe trigger <event_type>
 stripe trigger checkout.session.completed
 stripe trigger customer.subscription.updated
 stripe trigger customer.subscription.deleted
 stripe trigger invoice.payment_succeeded
+
+# Resend specific event:
+stripe events resend <event_id>
 ```
 
 - Method 2: Use `ngrok`
+
+## Simulate payments
+
+- Details: https://docs.stripe.com/testing
+- Example test cards:
+
+```
+4242424242424242
+5555555555554444
+...
+```

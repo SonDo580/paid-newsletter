@@ -59,7 +59,7 @@ class StripeWebhookService:
     def __handle_checkout_session_completed(
         self, checkout_session: stripe.checkout.Session
     ) -> None:
-        meta_dict = checkout_session.metadata
+        meta_dict = checkout_session.metadata.to_dict()
         meta = CheckoutMetadata.model_validate(meta_dict)
         checkout_type = meta.checkout_type
         if checkout_type == "purchase":
@@ -139,7 +139,6 @@ class StripeWebhookService:
 
         payment.status = PaymentStatus.SUCCEEDED
         payment.stripe_invoice_id = checkout_session.invoice
-        payment.stripe_payment_intent_id = checkout_session.payment_intent
         payment.amount_cents = checkout_session.amount_total
 
         stripe_subscription_id = checkout_session.subscription
@@ -229,8 +228,8 @@ class StripeWebhookService:
         if existing_payment:  # race condition
             return
 
-        meta_dict = invoice.parent.subscription_details.metadata
-        meta = SubscriptionMetadata(meta_dict)
+        meta_dict = invoice.parent.subscription_details.metadata.to_dict()
+        meta = SubscriptionMetadata.model_validate(meta_dict)
         reader_id = meta.reader_id
 
         try:

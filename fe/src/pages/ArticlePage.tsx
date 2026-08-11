@@ -1,10 +1,21 @@
 import { Link, useLocation, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { usePublicArticleBySlugQuery } from "~/api/articles.hooks";
+import {
+  usePurchaseCheckoutMutation,
+  useSubscriptionCheckoutMutation,
+} from "~/api/payments.hooks";
 import { QueryView } from "~/components/QueryView";
 import { Button } from "~/components/ui/button";
+import { Spinner } from "~/components/ui/spinner";
 import { useAuth } from "~/contexts/AuthContext";
+import { useCustomSearchParams } from "~/hooks/useCustomSearchParams";
 import type { PublicArticle } from "~/schemas/articles";
-import type { CheckoutPageQuery, LoginPageQuery } from "~/schemas/page";
+import {
+  articlePageQuerySchema,
+  type ArticlePageQuery,
+  type LoginPageQuery,
+} from "~/schemas/page";
 import { PATHS } from "~/utils/paths";
 import { buildPath } from "~/utils/url";
 
@@ -17,23 +28,19 @@ function CallToAction({ articleId, pastDueSubscription }: CallToActionProps) {
   const { user, authPending } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname + location.search;
-
-  const loginPageQuery: LoginPageQuery = {
-    redirect: currentPath,
-  };
-  const loginPagePath = buildPath(PATHS.LOGIN, loginPageQuery);
-
-  const checkoutPageQuery: CheckoutPageQuery = {
-    articleId: articleId,
-    redirect: currentPath,
-  };
-  const checkoutPagePath = buildPath(PATHS.CHECKOUT, checkoutPageQuery);
+  const purchaseCheckoutMutation = usePurchaseCheckoutMutation();
+  const subscriptionCheckoutMutation = useSubscriptionCheckoutMutation();
 
   if (authPending) {
     return null;
   }
 
   if (!user) {
+    const loginPageQuery: LoginPageQuery = {
+      redirect: currentPath,
+    };
+    const loginPagePath = buildPath(PATHS.LOGIN, loginPageQuery);
+
     return (
       <Link to={loginPagePath}>
         <Button variant="default">Login to read more</Button>
@@ -44,9 +51,7 @@ function CallToAction({ articleId, pastDueSubscription }: CallToActionProps) {
   if (pastDueSubscription) {
     return (
       <>
-        <p className="text-amber-700">
-          Your subscription is past due.
-        </p>
+        <p className="text-amber-700">Your subscription is past due.</p>
         <Link to={PATHS.SETTINGS}>
           <Button variant="default">Manage billing</Button>
         </Link>
@@ -54,10 +59,46 @@ function CallToAction({ articleId, pastDueSubscription }: CallToActionProps) {
     );
   }
 
+  const isPending =
+    purchaseCheckoutMutation.isPending ||
+    subscriptionCheckoutMutation.isPending;
+
+  const articlePageQuery: ArticlePageQuery = {
+    checkoutSuccess: true,
+  };
+  const redirectPath = buildPath(currentPath, articlePageQuery);
+
+  const handlePurchase = async () => {
+    try {
+      await purchaseCheckoutMutation.mutateAsync({
+        article_id: articleId,
+        redirect_path: redirectPath,
+      });
+    } catch (err) {
+      toast.error(`Error creating purchase checkout session: ${err}`);
+    }
+  };
+
+  const handleSubscribe = async () => {
+    try {
+      await subscriptionCheckoutMutation.mutateAsync({
+        redirect_path: redirectPath,
+      });
+    } catch (err) {
+      toast.error(`Error creating subscription checkout session: ${err}`);
+    }
+  };
+
   return (
-    <Link to={checkoutPagePath}>
-      <Button variant="default">Subscribe or purchase</Button>
-    </Link>
+    <div className="flex items-center gap-2">
+      <Button variant="default" disabled={isPending} onClick={handleSubscribe}>
+        {subscriptionCheckoutMutation.isPending ? <Spinner /> : "Subscribe"}
+      </Button>
+      <span>or</span>
+      <Button variant="default" disabled={isPending} onClick={handlePurchase}>
+        {purchaseCheckoutMutation.isPending ? <Spinner /> : "Buy this article"}
+      </Button>
+    </div>
   );
 }
 
@@ -99,7 +140,12 @@ function ArticleDetails({ article }: ArticleDetailsProps) {
 
 export default function ArticlePage() {
   const { slug } = useParams<{ slug: string }>();
-  const { data: article, isLoading, error } = usePublicArticleBySlugQuery(slug);
+  const { checkoutSuccess } = useCustomSearchParams(articlePageQuerySchema);
+  const {
+    data: article,
+    isLoading,
+    error,
+  } = usePublicArticleBySlugQuery(slug, checkoutSuccess);
 
   return (
     <QueryView
