@@ -1,8 +1,27 @@
+import type { ReactNode } from "react";
 import { toast } from "sonner";
 import { useCreateBillingPortalSessionMutation } from "~/api/payments.hooks";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { useAuth } from "~/contexts/AuthContext";
+
+interface AccountSectionProps {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}
+
+function AccountSection({ title, description, children }: AccountSectionProps) {
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+      <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+      {description && (
+        <p className="mt-1 text-sm text-slate-500">{description}</p>
+      )}
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
 
 export default function AccountPage() {
   const { user, authPending } = useAuth();
@@ -36,42 +55,32 @@ export default function AccountPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8 p-6">
       {/* Account Information */}
-      <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">
-          Account Information
-        </h2>
-        <div className="mt-4 space-y-3 text-sm">
+      <AccountSection title="Account Information">
+        <div className="space-y-3 text-sm">
           <div className="font-medium text-slate-500">
             Email: <span className="mt-0.5 text-slate-900">{user.email}</span>
           </div>
         </div>
-      </section>
+      </AccountSection>
 
       {/* Billing Settings */}
       {hasStripeProfile && (
-        <section className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-slate-900">
-            Billing Settings
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            View your invoice history, payment receipts, or update payment
-            details.
-          </p>
-
-          <div className="mt-4">
-            <Button
-              variant="default"
-              disabled={billingPortalSessionMutation.isPending}
-              onClick={handleManageBilling}
-            >
-              {billingPortalSessionMutation.isPending ? (
-                <Spinner />
-              ) : (
-                "Manage billing"
-              )}
-            </Button>
-          </div>
-        </section>
+        <AccountSection
+          title="Billing Settings"
+          description="View your invoice history, payment receipts, or update payment details."
+        >
+          <Button
+            variant="default"
+            disabled={billingPortalSessionMutation.isPending}
+            onClick={handleManageBilling}
+          >
+            {billingPortalSessionMutation.isPending ? (
+              <Spinner />
+            ) : (
+              "Manage billing"
+            )}
+          </Button>
+        </AccountSection>
       )}
     </div>
   );

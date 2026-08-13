@@ -1,16 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Navigate } from "react-router-dom";
 import { getApiErrMsg } from "~/api/apiError";
 import { useLoginMutation } from "~/api/auth.hooks";
 import { Button } from "~/components/ui/button";
 import { Field, FieldError, FieldGroup } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
+import { useAuth } from "~/contexts/AuthContext";
 import { useCustomSearchParams } from "~/hooks/useCustomSearchParams";
+import { PATHS } from "~/paths";
 import { loginSchema, type LoginFormValues } from "~/schemas/auth";
 import { loginPageQuerySchema } from "~/schemas/page";
 
 export default function LoginPage() {
+  const { user, authPending } = useAuth();
   const { redirect: redirectPath } =
     useCustomSearchParams(loginPageQuerySchema);
   const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
@@ -34,6 +38,14 @@ export default function LoginPage() {
       setLoginErrMsg(getApiErrMsg(err));
     }
   };
+
+  if (authPending) {
+    return null;
+  }
+
+  if (user) {
+    return <Navigate to={redirectPath || PATHS.HOME} replace />;
+  }
 
   return (
     <div className="flex justify-center p-4">

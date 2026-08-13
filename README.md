@@ -41,3 +41,9 @@ A self-hosted newsletter platform for independent publishers who want full contr
 - [x] Manage articles.
 - [ ] Manage readers.
 - [ ] Email delivery statistics.
+
+## UI/UX
+
+- [ ] Responsive layout.
+- [ ] Dark mode.
+- [ ] Skeleton/Spinner for loading.

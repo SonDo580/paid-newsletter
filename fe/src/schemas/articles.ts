@@ -110,3 +110,7 @@ export interface ArticlesListForAdminResBody {
   items: ArticlesListItemForAdmin[];
   total: number;
 }
+
+export interface CheckSlugResBody {
+  available: boolean;
+}

@@ -8,7 +8,7 @@ export default function AdminLayout() {
 
   return (
     <div className="flex">
-      <aside className="w-64 border-r border-gray-200 p-3">
+      <aside className="w-48 shrink-0 border-r border-gray-200 bg-white p-3">
         <h3 className="mb-6 text-xl font-bold tracking-tight">Admin Panel</h3>
         <nav className="flex flex-col gap-2">
           <NavLink to={PATHS.ADMIN.ARTICLES} className={getNavItemCls} end>
@@ -17,8 +17,8 @@ export default function AdminLayout() {
         </nav>
       </aside>
 
-      <main className="flex-1 p-6">
-        <div className="rounded-lg border border-gray-200 p-6 shadow-xs">
+      <main className="flex-1 min-w-0 p-6">
+        <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-xs">
           <Outlet />
         </div>
       </main>
