@@ -3,7 +3,6 @@ from fastapi import HTTPException, status
 from typing import Optional
 import base64
 from arq.connections import ArqRedis
-from loguru import logger
 
 from app.db.models.article import Article
 from app.db.models.entitlement import Entitlement

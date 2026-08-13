@@ -1,7 +1,6 @@
 import resend
 from jinja2 import Environment, PackageLoader, select_autoescape
 import re
-import hashlib
 
 from app.config.settings import settings
 from app.db.models.article import Article

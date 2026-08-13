@@ -23,11 +23,6 @@ class TaskName(str, Enum):
 
 
 async def task_create_article_notifications(ctx: dict, article_id: int):
-    base_msg = (
-        f"[Task {TaskName.CREATE_ARTICLE_NOTIFICATIONS.value}] article_id={article_id}"
-    )
-    logger.info(f"{base_msg}: Starting...")
-
     with DBSession(engine) as db_session:
         article = db_session.get(Article, article_id)
         if not article or not article.is_published:
@@ -65,15 +60,8 @@ async def task_create_article_notifications(ctx: dict, article_id: int):
         TaskName.SEND_ARTICLE_NOTIFICATIONS, article_id=article_id
     )
 
-    logger.info(f"{base_msg}: Done")
-
 
 async def task_send_article_notifications(ctx: dict, article_id: int):
-    base_msg = (
-        f"[Task {TaskName.SEND_ARTICLE_NOTIFICATIONS.value}] article_id={article_id}"
-    )
-    logger.info(f"{base_msg}: Starting...")
-
     mail_service = MailService()
 
     with DBSession(engine) as db_session:
@@ -109,9 +97,8 @@ async def task_send_article_notifications(ctx: dict, article_id: int):
                 mail_service.bulk_send_article_notifications(
                     emails, notification_ids, article
                 )
-                logger.info(f"{base_msg}: Sent {len(emails)} emails")
             except Exception as e:
-                logger.exception(f"{base_msg}: Email batch failed: {e}")
+                logger.exception(f"Email batch failed for article {article_id}: {e}")
                 raise Retry(defer=timedelta(seconds=15))
 
             # Mark notifications as sent
@@ -125,8 +112,6 @@ async def task_send_article_notifications(ctx: dict, article_id: int):
             db_session.commit()
 
             last_notification_id = notification_ids[-1]
-
-    logger.info(f"{base_msg}: Done")
 
 
 async def startup(ctx: dict):
