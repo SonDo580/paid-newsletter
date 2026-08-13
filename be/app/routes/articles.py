@@ -22,12 +22,12 @@ router = APIRouter(prefix="/articles", tags=["Articles"])
 @router.post(
     "/", response_model=ArticleCreateResBody, status_code=status.HTTP_201_CREATED
 )
-def create_article(
+async def create_article(
     data: ArticleCreateReqBody,
     articles_service: ArticlesServiceDep,
     _: AdminRequiredDep,
 ):
-    return articles_service.create_article(data)
+    return await articles_service.create_article(data)
 
 
 @router.get("/check-slug", response_model=CheckSlugResBody)
@@ -38,7 +38,7 @@ def check_slug(slug: TSlug, articles_service: ArticlesServiceDep, _: AdminRequir
 
 
 @router.patch("/{article_id}", status_code=status.HTTP_204_NO_CONTENT)
-def update_article(
+async def update_article(
     article_id: int,
     data: ArticleUpdateReqBody,
     articles_service: ArticlesServiceDep,
@@ -49,7 +49,7 @@ def update_article(
     - Toggle free/paid status.
     - Publish/unpublish. Trigger email sending for first-time publish.
     """
-    articles_service.update_article(article_id, data)
+    await articles_service.update_article(article_id, data)
 
 
 @router.get("/id/{article_id}", response_model=Article)

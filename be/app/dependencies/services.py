@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import Depends
 
+from app.common.arq_redis import ArqRedisDep
 from app.db.connect import DBSessionDep
 from app.services.articles import ArticlesService
 from app.services.auth import AuthService
@@ -12,8 +13,10 @@ from app.services.stripe_webhook import StripeWebhookService
 from app.services.subscriptions import SubscriptionsService
 
 
-def get_articles_service(db_session: DBSessionDep) -> ArticlesService:
-    return ArticlesService(db_session)
+def get_articles_service(
+    db_session: DBSessionDep, arq_redis: ArqRedisDep
+) -> ArticlesService:
+    return ArticlesService(db_session, arq_redis)
 
 
 def get_auth_service(db_session: DBSessionDep) -> AuthService:

@@ -22,24 +22,22 @@ A self-hosted newsletter platform for independent publishers who want full contr
 
 1. **Authentication & reader profile**
 
-- Password-less login via email.
-- Subscription status & bought articles.
-- Email preferences: a way for users to opt-in or out of receiving newsletter via email.
+- [x] Login via email.
+- [] Connect Google account.
+- [] Subscription status & bought articles.
+- [] Email preferences: opt-in or out of receiving emails.
 
 2. **Payment & pay wall**
 
-- PSP (`Stripe`) integration for checkout.
-- Paid content: show preview followed by call-to-action (CTA) to pay.
-- For admin: set subscription fee and article global price.
+- [x] `Stripe` integration for checkout and billing management.
+- [x] Paid content: show preview followed by call-to-action (CTA).
+
+3. **Email Delivery**
+
+- [x] Send emails to subscribers when publishing articles.
 
 3. **Admin Panel**
 
-- Manage articles.
-- Manage readers (subscribers, one-time buyers).
-
-4. **Email Delivery**
-
-- Send published articles to subscribers. Every email should have a `Read on website` link.
-- For admin:
-  - Email delivery statistics.
-  - Resend failed batches.
+- [x] Manage articles.
+- [] Manage readers.
+- [] Email delivery statistics.

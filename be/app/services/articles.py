@@ -2,6 +2,8 @@ from sqlmodel import Session as DBSession, select, or_, func
 from fastapi import HTTPException, status
 from typing import Optional
 import base64
+from arq.connections import ArqRedis
+from loguru import logger
 
 from app.db.models.article import Article
 from app.db.models.entitlement import Entitlement
@@ -23,6 +25,7 @@ from app.schemas.auth import CurrentUser
 from app.schemas.shared import SortOrder
 from app.utils.datetime import datetime_utils
 from app.services.subscriptions import SubscriptionsService
+from app.worker import TaskName
 
 
 def encode_cursor(last_id: int) -> str:
@@ -39,11 +42,12 @@ def decode_cursor(cursor: str) -> int:
 
 
 class ArticlesService:
-    def __init__(self, db_session: DBSession):
+    def __init__(self, db_session: DBSession, arq_redis: ArqRedis):
         self.db_session = db_session
+        self.arq_redis = arq_redis
         self.subscriptions_service = SubscriptionsService(db_session)
 
-    def create_article(self, data: ArticleCreateReqBody) -> ArticleCreateResBody:
+    async def create_article(self, data: ArticleCreateReqBody) -> ArticleCreateResBody:
         if not self.is_slug_unique(data.slug):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -54,17 +58,49 @@ class ArticlesService:
             article = Article.model_validate(data)
             if data.is_published:
                 article.published_at = datetime_utils.now_utc()
-                # TODO: email notification to subscribers
-
             self.db_session.add(article)
+            self.db_session.flush()  # populate article.id
             self.db_session.commit()
-            self.db_session.refresh(article)
-            return ArticleCreateResBody(id=article.id)
         except Exception:
             self.db_session.rollback()
             raise
-            # Race condition: someone added the same slug between our check and commit
-            # -> Don't handle since there's only 1 admin
+
+        if article.is_published:
+            await self.__notify_subscribers(article.id)
+
+        return ArticleCreateResBody(id=article.id)
+
+    async def update_article(self, article_id: int, data: ArticleUpdateReqBody):
+        article = self.get_by_id(article_id)
+        update_data = data.model_dump(exclude_none=True)
+        if not update_data:
+            return
+
+        is_first_publish = (
+            data.is_published  # request wants to publish
+            and not article.is_published  # article is currently not published
+            and article.published_at is None  # article has never been published
+        )
+
+        try:
+            for k, v in update_data.items():
+                setattr(article, k, v)  # can do this since fields match
+            now = datetime_utils.now_utc()
+            article.updated_at = now
+            if is_first_publish:
+                article.published_at = now
+            self.db_session.commit()
+        except Exception:
+            self.db_session.rollback()
+            raise
+
+        if is_first_publish:
+            await self.__notify_subscribers(article.id)
+
+    async def __notify_subscribers(self, article_id: int):
+        await self.arq_redis.enqueue_job(
+            TaskName.CREATE_ARTICLE_NOTIFICATIONS, article_id=article_id
+        )
 
     def is_slug_unique(self, slug: str) -> bool:
         statement = select(Article.id).where(Article.slug == slug)
@@ -131,7 +167,8 @@ class ArticlesService:
             subscription = self.subscriptions_service.get_latest_subscription(reader)
             has_active_subscription = (
                 subscription is not None
-                and subscription.status == SubscriptionStatus.ACTIVE
+                and subscription.status
+                in [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING]
             )
 
         if article.is_free or has_active_subscription or purchased:
@@ -152,34 +189,6 @@ class ArticlesService:
             access_status=AccessStatus.TEASER,
             past_due_subscription=subscription_is_past_due,
         )
-
-    def update_article(self, article_id: int, data: ArticleUpdateReqBody):
-        article = self.get_by_id(article_id)
-        update_data = data.model_dump(exclude_none=True)
-        if not update_data:
-            return
-
-        is_first_publish = (
-            data.is_published  # request wants to publish
-            and not article.is_published  # article is currently not published
-            and article.published_at is None  # article has never been published
-        )
-
-        try:
-            for k, v in update_data.items():
-                # can do this only if fields match
-                setattr(article, k, v)
-
-            now = datetime_utils.now_utc()
-            article.updated_at = now
-            if is_first_publish:
-                article.published_at = now
-                # TODO: email notification to subscribers
-
-            self.db_session.commit()
-        except Exception:
-            self.db_session.rollback()
-            raise
 
     def list_articles_for_admin(
         self, params: ArticlesListForAdminParams
