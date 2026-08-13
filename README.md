@@ -23,9 +23,9 @@ A self-hosted newsletter platform for independent publishers who want full contr
 1. **Authentication & reader profile**
 
 - [x] Login via email.
-- [] Connect Google account.
-- [] Subscription status & bought articles.
-- [] Email preferences: opt-in or out of receiving emails.
+- [ ] Connect Google account.
+- [ ] Subscription & bought articles.
+- [ ] Email preferences: opt-in or out of receiving emails.
 
 2. **Payment & pay wall**
 
@@ -39,5 +39,5 @@ A self-hosted newsletter platform for independent publishers who want full contr
 3. **Admin Panel**
 
 - [x] Manage articles.
-- [] Manage readers.
-- [] Email delivery statistics.
+- [ ] Manage readers.
+- [ ] Email delivery statistics.
