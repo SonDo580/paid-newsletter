@@ -4,6 +4,7 @@ import type {
   ArticlesListForAdminResBody,
   ArticlesListForReaderParams,
   ArticlesListForReaderResBody,
+  CheckSlugResBody,
   CreateArticleReqBody,
   PublicArticle,
   UpdateArticleReqBody,
@@ -12,6 +13,12 @@ import { apiClient } from "./apiClient";
 
 export async function getArticleById(id: string): Promise<Article> {
   return apiClient<Article>(`/articles/id/${id}`);
+}
+
+export async function checkSlug(slug: string): Promise<CheckSlugResBody> {
+  return apiClient<CheckSlugResBody>("/articles/check-slug", {
+    params: { slug },
+  });
 }
 
 export async function createArticle(data: CreateArticleReqBody): Promise<void> {

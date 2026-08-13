@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, FormState, useForm } from "react-hook-form";
+import { checkSlug } from "~/api/articles";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -44,7 +45,7 @@ export default function ArticleForm({
     },
   });
 
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const generateSlug = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isEditMode || isSlugCustomized) {
       return;
     }
@@ -57,6 +58,65 @@ export default function ArticleForm({
       .replace(/^-+|-+$/g, ""); // remove leading and trailing hyphens
 
     form.setValue("slug", generatedSlug, { shouldValidate: true });
+  };
+
+  const clearManualSlugError = () => {
+    if (form.formState.errors.slug?.type === "manual") {
+      form.clearErrors("slug");
+    }
+  };
+
+  const checkSlugAvailability = async () => {
+    const currentSlug = form.getValues("slug");
+    if (isEditMode || !currentSlug.trim()) {
+      return;
+    }
+
+    try {
+      const res = await checkSlug(currentSlug);
+      if (!res.available) {
+        form.setError("slug", {
+          type: "manual",
+          message: "This slug is already taken.",
+        });
+      } else {
+        clearManualSlugError();
+      }
+    } catch (err) {
+      console.error("Failed to check slug availability:", err);
+    }
+  };
+
+  const handleTitleChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fieldOnChange: (...event: any[]) => void,
+  ) => {
+    fieldOnChange(e);
+    if (!isSlugCustomized) {
+      clearManualSlugError();
+    }
+    generateSlug(e);
+  };
+
+  const handleTitleBlur = (fieldOnBlur: () => void) => {
+    fieldOnBlur();
+    if (!isSlugCustomized) {
+      checkSlugAvailability();
+    }
+  };
+
+  const handleSlugChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fieldOnChange: (...event: any[]) => void,
+  ) => {
+    fieldOnChange(e);
+    clearManualSlugError();
+    setIsSlugCustomized(true);
+  };
+
+  const handleSlugBlur = (fieldOnBlur: () => void) => {
+    fieldOnBlur();
+    checkSlugAvailability();
   };
 
   const handleFormSubmit = (data: ArticleFormValues) => {
@@ -83,10 +143,8 @@ export default function ArticleForm({
                 <Input
                   {...field}
                   placeholder="Title"
-                  onChange={(e) => {
-                    field.onChange(e);
-                    handleTitleChange(e);
-                  }}
+                  onChange={(e) => handleTitleChange(e, field.onChange)}
+                  onBlur={() => handleTitleBlur(field.onBlur)}
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -105,10 +163,8 @@ export default function ArticleForm({
                   {...field}
                   placeholder="Slug"
                   disabled={isEditMode}
-                  onChange={(e) => {
-                    field.onChange(e);
-                    setIsSlugCustomized(true);
-                  }}
+                  onChange={(e) => handleSlugChange(e, field.onChange)}
+                  onBlur={() => handleSlugBlur(field.onBlur)}
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
