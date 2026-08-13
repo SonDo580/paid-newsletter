@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
 
 from app.common.constants import Env
 
@@ -12,6 +13,8 @@ class Settings(BaseSettings):
 
     ENV: Env
     ALLOWED_ORIGINS: list[str]
+    FRONTEND_URL: str
+    API_URL: str
 
     # Auth
     ADMIN_EMAIL: str
@@ -27,18 +30,20 @@ class Settings(BaseSettings):
     def DB_URL(self) -> str:
         return f"sqlite:///{self.DB_PATH}"
 
+    # Redis
+    REDIS_URL: str
+
     # Email sending
     FROM_EMAIL: str
     RESEND_API_KEY: str
-    FRONTEND_URL: str
-    API_URL: str
+    MAX_RECIPIENTS: int = 100  # Resend's constraint
 
     # Fee settings
     CURRENCY: str = "usd"
     ARTICLE_FEE_CENTS: int = 100
 
     # Stripe
-    STRIPE_SECRET_KEY: str    
+    STRIPE_SECRET_KEY: str
     STRIPE_WEBHOOK_SECRET: str
     STRIPE_SUBSCRIPTION_PRICE_ID: str
 

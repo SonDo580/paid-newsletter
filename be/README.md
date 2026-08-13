@@ -9,10 +9,17 @@ uv sync
 uv add <package>
 ```
 
-## Start server
+## Run services
 
 ```bash
-make dev
+# Services in Docker
+make docker
+
+# Server
+make api
+
+# Worker
+make worker
 ```
 
 ## DB migration
@@ -49,7 +56,7 @@ npm install -g @stripe/cli
 stripe login
 
 # Listen and forward events to localhost
-make stripe-dev
+make stripe
 # (Optional) Only forward needed events
 stripe listen --events <comma-separated list> --forward-to <webhook url>
 

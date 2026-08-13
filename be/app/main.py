@@ -3,18 +3,23 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
+from app.routes.api import api_router
 from app.config.settings import settings
 from app.config.sdks import init_sdks
-from app.routes.api import api_router
 from app.config.openapi import setup_openapi
 from app.common.exceptions import register_exception_handlers
+from app.common.arq_redis import init_arq_redis, close_arq_redis
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_sdks()
+    await init_arq_redis()
     yield
+    await close_arq_redis()
 
-app = FastAPI(title="Paid Newsletter API", lifespan=lifespan)
+
+app = FastAPI(lifespan=lifespan, title="Paid Newsletter API")
 
 app.add_middleware(
     CORSMiddleware,
