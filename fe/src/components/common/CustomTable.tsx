@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronsUpDown, ChevronUp } from "lucide-react";
 import type { ReactNode } from "react";
 import { cn } from "~/lib/utils";
 import type { SortOrder } from "~/schemas/shared";
@@ -49,6 +50,7 @@ function CustomTableHead<T>({
   const sortKey = column.sortKey ?? (column.sortable ? column.key : undefined);
   const isSortable = !!sortKey;
   const isSorted = isSortable && sortBy === sortKey;
+  const sortIconCls = "h-4 w-4";
 
   const handleClick = () => {
     if (sortKey && onSortChange) {
@@ -61,17 +63,23 @@ function CustomTableHead<T>({
       key={column.key}
       className={cn(
         column.className,
+        "bg-gray-100",
         isSortable ? "cursor-pointer hover:bg-gray-100" : "",
       )}
       onClick={handleClick}
     >
       <div className="flex items-center gap-1">
         <span>{column.header}</span>
-        {isSortable && (
-          <span className="text-gray-400 text-xs">
-            {isSorted ? (sortOrder === "asc" ? "▲" : "▼") : "↕"}
-          </span>
-        )}
+        {isSortable &&
+          (isSorted ? (
+            sortOrder === "asc" ? (
+              <ChevronUp className={cn(sortIconCls, "text-blue-600")} />
+            ) : (
+              <ChevronDown className={cn(sortIconCls, "text-blue-600")} />
+            )
+          ) : (
+            <ChevronsUpDown className={cn(sortIconCls, "text-gray-400")} />
+          ))}
       </div>
     </TableHead>
   );
