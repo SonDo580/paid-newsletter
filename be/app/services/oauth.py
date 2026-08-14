@@ -82,6 +82,10 @@ class OAuthService:
         )
         return self.db_session.exec(stmt).first()
 
+    def get_all_oauth_accounts_for_reader(self, reader: Reader) -> list[OAuthAccount]:
+        stmt = select(OAuthAccount).where(OAuthAccount.reader_id == reader.id)
+        return list(self.db_session.exec(stmt).all())
+
     def link_account(self, reader: Reader, info: OAuthUserInfo):
         existing = self.__get_oauth_account_by_account_id(
             provider=info.provider, provider_account_id=info.provider_account_id
