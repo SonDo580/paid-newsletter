@@ -22,6 +22,7 @@ class OAuthAccount(StrictModel, table=True):
         sa_column=Column(SQLEnum(OAuthProvider, native_enum=False), nullable=False)
     )
     provider_account_id: str
+    email: Optional[str] = None
 
     created_at: datetime = Field(
         default_factory=datetime_utils.now_utc,

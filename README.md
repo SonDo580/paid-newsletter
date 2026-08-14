@@ -23,7 +23,7 @@ A self-hosted newsletter platform for independent publishers who want full contr
 1. **Authentication & reader profile**
 
 - [x] Login via email.
-- [ ] Connect Google account.
+- [ ] Connect Google account (reader only).
 - [ ] Subscription & bought articles.
 - [ ] Email preferences: opt-in or out of receiving emails.
 

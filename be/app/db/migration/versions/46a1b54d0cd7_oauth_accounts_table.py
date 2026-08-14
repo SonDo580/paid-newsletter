@@ -1,8 +1,8 @@
 """oauth_accounts_table
 
-Revision ID: 46b8dbad819a
+Revision ID: 46a1b54d0cd7
 Revises: 11d56edb7700
-Create Date: 2026-08-14 14:06:29.677265
+Create Date: 2026-08-14 19:03:30.121066
 
 """
 from typing import Sequence, Union
@@ -14,7 +14,7 @@ import app.db.models.shared
 
 
 # revision identifiers, used by Alembic.
-revision: str = '46b8dbad819a'
+revision: str = '46a1b54d0cd7'
 down_revision: Union[str, Sequence[str], None] = '11d56edb7700'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -28,6 +28,7 @@ def upgrade() -> None:
     sa.Column('reader_id', sa.Integer(), nullable=False),
     sa.Column('provider', sa.Enum('GOOGLE', name='oauthprovider', native_enum=False), nullable=False),
     sa.Column('provider_account_id', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
+    sa.Column('email', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('created_at', app.db.models.shared.UTCDateTime(), nullable=False),
     sa.ForeignKeyConstraint(['reader_id'], ['readers.id'], name=op.f('fk_oauth_accounts_reader_id_readers')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_oauth_accounts')),

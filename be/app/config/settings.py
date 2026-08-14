@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     MAGIC_TOKEN_EXPIRES_MINUTES: int = 15
     ACCESS_TOKEN_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRES_DAYS: int = 30
+    OAUTH_STATE_SECRET_KEY: str
+    OAUTH_STATE_EXPIRES_MINUTES: int = 10
 
     # DB
     DB_PATH: str = "newsletter.db"
@@ -45,6 +47,11 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: str
     STRIPE_WEBHOOK_SECRET: str
     STRIPE_SUBSCRIPTION_PRICE_ID: str
+
+    # Google
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    GOOGLE_REDIRECT_URI: str
 
 
 settings = Settings()

@@ -34,21 +34,24 @@ class AuthService:
             token, expected_type=TokenType.MAGIC
         )
         email = magic_token_payload.sub
+        redirect_path = magic_token_payload.redirect_path or "/"
 
         # Ensure reader is verified
         if not self.is_admin(email):
             self.readers_service.verify_reader(email)
 
         # Issue access token
+        access_token = self.issue_access_token(email)
+
+        return access_token, redirect_path
+
+    def issue_access_token(self, email: str) -> str:
         access_token_payload = TokenPayload(
             sub=email,
             exp=token_utils.get_expires_at(TokenType.ACCESS),
             type=TokenType.ACCESS,
         )
-        access_token = token_utils.generate_token(access_token_payload)
-
-        redirect_path = magic_token_payload.redirect_path or "/"
-        return access_token, redirect_path
+        return token_utils.generate_token(access_token_payload)
 
     def is_admin(self, email: str) -> bool:
         return email == settings.ADMIN_EMAIL
