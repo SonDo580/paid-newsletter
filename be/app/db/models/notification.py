@@ -16,7 +16,7 @@ class Notification(StrictModel, table=True):
 
     created_at: datetime = Field(
         default_factory=datetime_utils.now_utc,
-        sa_column=Column(UTCDateTime),
+        sa_column=Column(UTCDateTime, nullable=False),
     )
     sent_at: Optional[datetime] = Field(
         default=None,

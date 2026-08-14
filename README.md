@@ -46,4 +46,3 @@ A self-hosted newsletter platform for independent publishers who want full contr
 
 - [ ] Responsive layout.
 - [ ] Dark mode.
-- [ ] Skeleton/Spinner for loading.
