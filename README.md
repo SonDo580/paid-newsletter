@@ -46,3 +46,7 @@ A self-hosted newsletter platform for independent publishers who want full contr
 
 - [ ] Responsive layout.
 - [ ] Dark mode.
+
+## Local development
+
+See [DEVELOP.md](DEVELOP.md)
