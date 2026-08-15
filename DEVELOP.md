@@ -49,7 +49,7 @@ uv sync
 ## Create `.env`
 
 - See `.env.example`.
-- Replace secret keys and variables related to service accounts.
+- Replace variables as needed.
 
 ## Run services
 
