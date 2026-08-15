@@ -1,16 +1,12 @@
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { toast } from "sonner";
-import { API_BASE_URL } from "~/api/apiClient";
+import { useOAuthFlow } from "~/api/auth.hooks";
 import { useCreateBillingPortalSessionMutation } from "~/api/payments.hooks";
 import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
+import { SUPPORTED_PROVIDERS } from "~/constants/oauth_providers";
 import { useAuth } from "~/contexts/AuthContext";
-import type {
-  OAuthAccount,
-  OAuthAuthorizeParams,
-  OAuthProvider,
-} from "~/schemas/auth";
-import { buildUrl } from "~/utils/url";
+import type { OAuthAccount, OAuthProvider } from "~/schemas/auth";
 
 interface AccountSectionProps {
   title: string;
@@ -30,52 +26,31 @@ function AccountSection({ title, description, children }: AccountSectionProps) {
   );
 }
 
-interface ProviderMeta {
-  id: OAuthProvider;
-  name: string;
-  // icon: ReactNode;
-}
-
-const SUPPORTED_PROVIDERS: ProviderMeta[] = [
-  {
-    id: "google",
-    name: "Google",
-  },
-];
-
 interface ConnectedAccountsProps {
   connectedAccounts: OAuthAccount[];
 }
 
 function ConnectedAccounts({ connectedAccounts }: ConnectedAccountsProps) {
-  const [connectingProvider, setConnectingProvider] =
-    useState<OAuthProvider | null>(null);
+  const { startOAuth, pendingProvider } = useOAuthFlow();
 
-  const handleConnectProvider = async (provider: OAuthProvider) => {
-    setConnectingProvider(provider);
-    const currentPath = window.location.pathname;
-    const params: OAuthAuthorizeParams = {
+  const handleConnect = (provider: OAuthProvider) => {
+    startOAuth({
+      provider,
       action: "connect",
-      redirect_path: currentPath,
-    };
-    const authorizeUrl = buildUrl(
-      API_BASE_URL,
-      `/auth/${provider}/authorize`,
-      params,
-    );
-    window.location.href = authorizeUrl;
+      redirectPath: window.location.pathname,
+    });
   };
 
-  return SUPPORTED_PROVIDERS.map((provider_meta) => {
+  return SUPPORTED_PROVIDERS.map((providerMeta) => {
     const connectedAccount = connectedAccounts.find(
-      (acc) => acc.provider === provider_meta.id,
+      (acc) => acc.provider === providerMeta.id,
     );
-    const isConnecting = connectingProvider === provider_meta.id;
+    const isConnecting = pendingProvider === providerMeta.id;
 
     return (
-      <div key={provider_meta.id} className="flex items-center justify-between">
+      <div key={providerMeta.id} className="flex items-center justify-between">
         <span className="font-medium text-slate-900">
-          {provider_meta.name}:
+          {providerMeta.name}:
         </span>
         <span className="text-slate-600">
           {connectedAccount ? (
@@ -83,8 +58,8 @@ function ConnectedAccounts({ connectedAccounts }: ConnectedAccountsProps) {
           ) : (
             <Button
               variant="default"
-              disabled={Boolean(connectingProvider)}
-              onClick={() => handleConnectProvider(provider_meta.id)}
+              disabled={Boolean(pendingProvider)}
+              onClick={() => handleConnect(providerMeta.id)}
             >
               {isConnecting ? <Spinner /> : "Connect"}
             </Button>
