@@ -31,7 +31,9 @@ class Subscription(StrictModel, table=True):
     stripe_price_id: str
     status: SubscriptionStatus = Field(
         description="Stripe subscription status",
-        sa_column=Column(SQLEnum(SubscriptionStatus, native_enum=False)),
+        sa_column=Column(
+            SQLEnum(SubscriptionStatus, native_enum=False), nullable=False
+        ),
     )
 
     current_period_start: datetime = Field(

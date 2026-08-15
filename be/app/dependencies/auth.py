@@ -73,7 +73,21 @@ def get_current_reader(user: CurrentUser = Depends(get_current_user)) -> Reader:
         )
     return user.reader
 
+
+def get_optional_reader(
+    user: Optional[CurrentUser] = Depends(get_optional_user),
+) -> Optional[Reader]:
+    if not user:
+        return None
+    if user.is_admin or not user.reader:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Only for reader"
+        )
+    return user.reader
+
+
 CurrentUserDep = Annotated[CurrentUser, Depends(get_current_user)]
 OptionalUserDep = Annotated[Optional[CurrentUser], Depends(get_optional_user)]
 CurrentReaderDep = Annotated[Reader, Depends(get_current_reader)]
+OptionalReaderDep = Annotated[Optional[Reader], Depends(get_optional_reader)]
 AdminRequiredDep = Annotated[None, Depends(admin_required)]

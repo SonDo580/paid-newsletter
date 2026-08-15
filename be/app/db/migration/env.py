@@ -32,6 +32,7 @@ target_metadata.naming_convention = {
 from app.db.models.article import Article
 from app.db.models.entitlement import Entitlement
 from app.db.models.notification import Notification
+from app.db.models.oauth_account import OAuthAccount
 from app.db.models.payment import Payment
 from app.db.models.reader import Reader
 from app.db.models.subscription import Subscription

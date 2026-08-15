@@ -2,7 +2,7 @@ import type { QueryParams } from "~/schemas/shared";
 import { buildUrl } from "~/utils/url";
 import { ApiError } from "./apiError";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 interface FetchOptions extends RequestInit {
   body?: any;

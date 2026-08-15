@@ -26,7 +26,7 @@ class Payment(StrictModel, table=True):
     stripe_payment_intent_id: Optional[str] = Field(default=None, unique=True)
     stripe_invoice_id: Optional[str] = Field(default=None, unique=True)
     status: PaymentStatus = Field(
-        sa_column=Column(SQLEnum(PaymentStatus, native_enum=False)),
+        sa_column=Column(SQLEnum(PaymentStatus, native_enum=False), nullable=False),
     )
 
     created_at: datetime = Field(

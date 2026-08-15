@@ -15,15 +15,15 @@ A self-hosted newsletter platform for independent publishers who want full contr
 - Backend: `FastAPI`
 - Frontend: `ReactJS`
 - Database: `SQLite`
-- Payment: `Stripe`
-- Email: `Resend`
+- Payment service provider: `Stripe`
+- Email service: `Resend`
 
 ## Features
 
 1. **Authentication & reader profile**
 
 - [x] Login via email.
-- [ ] Connect Google account.
+- [x] Connect Google account (reader only).
 - [ ] Subscription & bought articles.
 - [ ] Email preferences: opt-in or out of receiving emails.
 
@@ -32,18 +32,21 @@ A self-hosted newsletter platform for independent publishers who want full contr
 - [x] `Stripe` integration for checkout and billing management.
 - [x] Paid content: show preview followed by call-to-action (CTA).
 
-3. **Email Delivery**
+3. **Content & publishing**
+
+- [x] Article creation & publishing.
+- [ ] Article images and media.
+
+4. **Email Delivery**
 
 - [x] Send emails to subscribers when publishing articles.
-
-3. **Admin Panel**
-
-- [x] Manage articles.
-- [ ] Manage readers.
-- [ ] Email delivery statistics.
+- [ ] For admin: Email delivery statistics.
 
 ## UI/UX
 
 - [ ] Responsive layout.
 - [ ] Dark mode.
-- [ ] Skeleton/Spinner for loading.
+
+## Local development
+
+See [DEVELOP.md](DEVELOP.md)

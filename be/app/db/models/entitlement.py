@@ -20,7 +20,7 @@ class Entitlement(StrictModel, table=True):
     article_id: int = Field(foreign_key="articles.id")
 
     source: EntitlementSource = Field(
-        sa_column=Column(SQLEnum(EntitlementSource, native_enum=False)),
+        sa_column=Column(SQLEnum(EntitlementSource, native_enum=False), nullable=False),
     )
     payment_id: Optional[int] = Field(default=None, foreign_key="payments.id")
 
@@ -29,6 +29,4 @@ class Entitlement(StrictModel, table=True):
         sa_column=Column(UTCDateTime, nullable=False),
     )
 
-    __table_args__ = (
-        UniqueConstraint("reader_id", "article_id", name="uq_reader_article"),
-    )
+    __table_args__ = (UniqueConstraint("reader_id", "article_id"),)
