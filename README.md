@@ -13,10 +13,10 @@ A self-hosted newsletter platform for independent publishers who want full contr
 ## Tech stack
 
 - Backend: `FastAPI`
-- Frontend: `ReactJS`
+- Frontend: `React`
 - Database: `SQLite`
-- Payment service provider: `Stripe`
-- Email service: `Resend`
+- Payment: `Stripe`
+- Email: `Resend`
 
 ## Features
 
@@ -34,7 +34,7 @@ A self-hosted newsletter platform for independent publishers who want full contr
 
 3. **Content & publishing**
 
-- [x] Article creation & publishing.
+- [x] Article creation, publishing, viewing.
 - [ ] Article images and media.
 
 4. **Email Delivery**
