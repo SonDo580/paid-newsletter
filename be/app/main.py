@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -15,7 +16,9 @@ from app.common.arq_redis import init_arq_redis, close_arq_redis
 async def lifespan(app: FastAPI):
     init_sdks()
     await init_arq_redis()
+
     yield
+
     await close_arq_redis()
 
 
@@ -29,8 +32,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(api_router, prefix="/api")
 register_exception_handlers(app)
+
+
+settings.UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+app.mount(
+    settings.STATIC_PREFIX,
+    StaticFiles(directory=settings.UPLOAD_DIR),
+    name="static",
+)
+
+app.include_router(api_router, prefix=settings.API_PREFIX)
+
 setup_openapi(app)
 
 
