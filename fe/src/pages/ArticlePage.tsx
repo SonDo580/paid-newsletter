@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { usePublicArticleBySlugQuery } from "~/api/articles.hooks";
@@ -11,13 +12,13 @@ import { Button } from "~/components/ui/button";
 import { Spinner } from "~/components/ui/spinner";
 import { useAuth } from "~/contexts/AuthContext";
 import { useCustomSearchParams } from "~/hooks/useCustomSearchParams";
+import { PATHS } from "~/paths";
 import type { PublicArticle } from "~/schemas/articles";
 import {
   articlePageQuerySchema,
   type ArticlePageQuery,
   type LoginPageQuery,
 } from "~/schemas/page";
-import { PATHS } from "~/paths";
 import { buildPath } from "~/utils/url";
 
 interface CallToActionProps {
@@ -142,9 +143,12 @@ function ArticleDetails({ article }: ArticleDetailsProps) {
             : "Draft / Retired"}
         </p>
 
-        <div className="mb-6 prose text-gray-800 leading-relaxed">
-          {article.content}
-        </div>
+        <div
+          className="mb-6 prose text-gray-800 leading-relaxed"
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(article.content),
+          }}
+        />
 
         {article.access_status === "teaser" && (
           <div className="flex flex-col items-center gap-2">

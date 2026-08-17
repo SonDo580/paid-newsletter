@@ -1,4 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
 
 from app.common.constants import Env
 
@@ -13,7 +14,21 @@ class Settings(BaseSettings):
     ENV: Env
     ALLOWED_ORIGINS: list[str]
     FRONTEND_URL: str
-    API_URL: str
+    BACKEND_URL: str
+    API_PREFIX: str = "/api"
+    STATIC_PREFIX: str = "/static"
+
+    @property
+    def API_URL(self) -> str:
+        base = self.BACKEND_URL.rstrip("/")
+        prefix = self.API_PREFIX.strip("/")
+        return f"{base}/{prefix}"
+
+    @property
+    def STATIC_URL(self) -> str:
+        base = self.BACKEND_URL.rstrip("/")
+        prefix = self.STATIC_PREFIX.strip("/")
+        return f"{base}/{prefix}"
 
     # Auth
     ADMIN_EMAIL: str
@@ -52,6 +67,9 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
     GOOGLE_REDIRECT_URI: str
+
+    # File storage
+    UPLOAD_DIR: Path  # use absolute path
 
 
 settings = Settings()

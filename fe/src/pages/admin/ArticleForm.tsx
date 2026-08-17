@@ -2,6 +2,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Controller, FormState, useForm } from "react-hook-form";
 import { checkSlug } from "~/api/articles";
+import { uploadImage } from "~/api/images";
+import { RichTextEditor } from "~/components/common/RichTextEditor";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -11,7 +13,6 @@ import {
   FieldLabel,
 } from "~/components/ui/field";
 import { Input } from "~/components/ui/input";
-import { Textarea } from "~/components/ui/textarea";
 import { articleFormSchema, type ArticleFormValues } from "~/schemas/articles";
 
 interface ArticleFormProps {
@@ -179,7 +180,16 @@ export default function ArticleForm({
             render={({ field, fieldState }) => (
               <Field>
                 <FieldLabel>Content</FieldLabel>
-                <Textarea {...field} placeholder="Content" rows={5} />
+                <RichTextEditor
+                  value={field.value}
+                  placeholder="Content"
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  uploadImageApi={async (file) => {
+                    const res = await uploadImage(file);
+                    return res.url;
+                  }}
+                />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
                 )}
