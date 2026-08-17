@@ -35,7 +35,7 @@ A self-hosted newsletter platform for independent publishers who want full contr
 3. **Content & publishing**
 
 - [x] Article creation, publishing, viewing.
-- [x] Article images (use local file system).
+- [x] Rich-text editor (use local file system for images).
 
 4. **Email Delivery**
 

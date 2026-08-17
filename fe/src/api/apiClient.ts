@@ -14,16 +14,23 @@ export async function apiClient<T>(
   { body, params, headers, ...extraConfig }: FetchOptions = {},
 ): Promise<T> {
   const url = buildUrl(API_BASE_URL, endpoint, params);
+
+  const isFormData = body instanceof FormData;
+  const defaultHeaders: Record<string, string> = isFormData
+    ? {}
+    : { "Content-Type": "application/json" };
+
   const config: RequestInit = {
     credentials: "include",
     headers: {
-      "Content-Type": "application/json",
+      ...defaultHeaders,
       ...headers,
     },
     ...extraConfig,
   };
+
   if (body) {
-    config.body = JSON.stringify(body);
+    config.body = isFormData ? body : JSON.stringify(body);
   }
 
   const response = await fetch(url, config);
