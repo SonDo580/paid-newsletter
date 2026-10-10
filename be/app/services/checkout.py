@@ -52,6 +52,19 @@ class CheckoutService:
         stripe_customer_id = self.__get_or_create_stripe_customer(reader)
 
         try:
+            # TODO:
+            # - Saving DB payment record and creating Stripe checkout session
+            #   don't need to (should not?) be in the same transaction.
+            # - Currently, if commit fails:
+            #   . DB payment record is discarded (rollback).
+            #   . Stripe checkout session become "orphaned".
+            #   -> OK: the API call will fail and doesn't return checkout URL to user.
+            # - What if we move Stripe checkout session creation out of the transaction,
+            #   and it fails:
+            #   . Stripe checkout session hasn't been created yet.
+            #   . DB payment record becomes "orphaned".
+            #   -> also OK: the API call will fail and doesn't return checkout URL to user.
+
             # Record PENDING payment
             payment = Payment(
                 reader_id=reader.id,
@@ -122,6 +135,8 @@ class CheckoutService:
         stripe_customer_id = self.__get_or_create_stripe_customer(reader)
 
         try:
+            # TODO: (See notes in create_purchase_checkout()).
+
             # Record PENDING payment
             payment = Payment(
                 reader_id=reader.id,

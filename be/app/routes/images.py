@@ -10,7 +10,11 @@ from app.utils.url import static_url_builder
 router = APIRouter(prefix="/images", tags=["Images"])
 
 
-
+# TODO:
+# - Currently upload to server's file system.
+#   -> Should switch to object storage, like S3.
+# - If switch to object storage, don't let files go through our server.
+#   Request presigned URL so FE can upload directly to S3.
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=UploadResBody)
 async def upload_image(
     _: AdminRequiredDep,

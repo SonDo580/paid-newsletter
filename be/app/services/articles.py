@@ -64,6 +64,7 @@ class ArticlesService:
             self.db_session.rollback()
             raise
 
+        # TODO: outbox (commit outbox event in the same transaction as article)
         if article.is_published:
             await self.__notify_subscribers(article.id)
 
@@ -93,9 +94,11 @@ class ArticlesService:
             self.db_session.rollback()
             raise
 
+            # TODO: outbox (commit outbox event in the same transaction as article)
         if is_first_publish:
             await self.__notify_subscribers(article.id)
 
+    # TODO: outbox
     async def __notify_subscribers(self, article_id: int):
         await self.arq_redis.enqueue_job(
             TaskName.CREATE_ARTICLE_NOTIFICATIONS, article_id=article_id
@@ -194,6 +197,10 @@ class ArticlesService:
     ) -> ArticlesListForAdminResBody:
         # Build filter conditions
         conditions = []
+
+        # TODO: ILIKE is not efficient for large content
+        # - Small scale -> try SQLite's FTS5.
+        # - Large scale -> migrate to Elasticsearch.
         if params.keyword:
             term = f"%{params.keyword}%"
             conditions.append(
@@ -209,6 +216,9 @@ class ArticlesService:
             conditions.append(Article.is_published == params.is_published)
 
         # Build count stmt
+        # TODO: Executing count stmt causes too much overhead
+        # - Approach 1: Cap max count and return 'has_more'.
+        # - Approach 2: Switch to keyset pagination.
         count_stmt = select(func.count(Article.id)).where(*conditions)
 
         # Build data stmt with sorting and paging
