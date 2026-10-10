@@ -147,6 +147,8 @@ def _handle_oauth_login(
     oauth_user_info: OAuthUserInfo,
     redirect_path: str,
 ) -> RedirectResponse:
+    # TODO: Should support 'Login with <provider>' directly
+    # instead of forcing a separate 'Connect <provider>' first.
     reader = oauth_service.get_reader_by_oauth_info(oauth_user_info)
     if not reader:
         provider_name = oauth_user_info.provider.value.title()

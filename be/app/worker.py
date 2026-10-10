@@ -22,6 +22,7 @@ class TaskName(str, Enum):
     SEND_ARTICLE_NOTIFICATIONS = "task_send_article_notifications"
 
 
+# TODO: offload blocking IO to threads, or switch to async DB driver
 async def task_create_article_notifications(ctx: dict, article_id: int):
     with DBSession(engine) as db_session:
         article = db_session.get(Article, article_id)
@@ -55,12 +56,14 @@ async def task_create_article_notifications(ctx: dict, article_id: int):
         db_session.commit()
 
     # Trigger send task
+    # TODO: outbox (commit outbox event in the same transaction as notifications)
     arq_redis: ArqRedis = ctx["redis"]
     await arq_redis.enqueue_job(
         TaskName.SEND_ARTICLE_NOTIFICATIONS, article_id=article_id
     )
 
 
+# TODO: offload blocking IO to threads, or switch to async DB driver / mail service
 async def task_send_article_notifications(ctx: dict, article_id: int):
     mail_service = MailService()
 

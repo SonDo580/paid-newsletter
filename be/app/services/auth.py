@@ -11,9 +11,7 @@ class AuthService:
         self.db_session = db_session
         self.readers_service = ReadersService(self.db_session)
 
-    def login(
-        self, email: str, redirect_path: str
-    ) -> str:
+    def login(self, email: str, redirect_path: str) -> str:
         # Register reader automatically
         if not self.is_admin(email):
             self.readers_service.get_by_email_or_create(email)
@@ -28,7 +26,7 @@ class AuthService:
         token = token_utils.generate_token(token_payload)
         return token
 
-    def verify(self, token: str) -> tuple[str,str]:
+    def verify(self, token: str) -> tuple[str, str]:
         # Verify Magic Token
         magic_token_payload = token_utils.verify_token(
             token, expected_type=TokenType.MAGIC
@@ -53,5 +51,6 @@ class AuthService:
         )
         return token_utils.generate_token(access_token_payload)
 
+    # TODO: need "admin" DB table to support multiple admins
     def is_admin(self, email: str) -> bool:
         return email == settings.ADMIN_EMAIL
